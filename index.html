@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roulette Simulator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
+.app { display: flex; gap: 10px; flex-wrap: wrap; max-width: 1500px; margin: 0 auto; }
+.panel { background: #fff; border: 1px solid #ccc; padding: 10px; }
+
+/* Bet Entry Panel */
+.bet-panel { width: 280px; }
+.bet-panel h3 { margin-bottom: 6px; font-size: 13px; background: #006600; color: #fff; padding: 4px; text-align: center; }
+.bet-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.bet-table td { padding: 2px 4px; border: 1px solid #ddd; }
+.bet-table input { width: 60px; font-size: 12px; text-align: right; padding: 1px 3px; }
+.bet-table .label { font-weight: bold; }
+
+.btn { padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer; border: 2px solid #333; margin: 4px; }
+.btn-bet { background: #fff; color: #006600; border-color: #006600; }
+.btn-reset { background: #fff; color: #cc0000; border-color: #cc0000; }
+.btn-repeat { background: #cc0000; color: #fff; border-color: #cc0000; font-size: 13px; padding: 8px 12px; }
+.btn-stop { background: #ff8800; color: #fff; border-color: #ff8800; }
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.buttons { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Stats Panel */
+.stats-panel { flex: 1; min-width: 300px; }
+.stats-grid { display: grid; grid-template-columns: auto auto; gap: 2px 10px; font-size: 13px; margin-bottom: 10px; border: 2px solid #006600; padding: 8px; }
+.stats-grid .lbl { font-weight: bold; }
+.stats-grid .val { text-align: right; font-weight: bold; }
+
+.balance-box { font-size: 18px; font-weight: bold; padding: 10px; margin-bottom: 10px; text-align: center; border: 3px solid; }
+.balance-pos { background: #d4ffd4; border-color: #006600; color: #006600; }
+.balance-neg { background: #ffd4d4; border-color: #cc0000; color: #cc0000; }
+
+.spin-result { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+.spin-number { font-size: 64px; font-weight: bold; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; border: 3px solid #333; }
+.spin-red { background: #cc0000; color: #fff; }
+.spin-black { background: #333; color: #fff; }
+.spin-green { background: #006600; color: #fff; }
+.spin-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.spin-tag { background: #eee; border: 1px solid #999; padding: 2px 8px; font-size: 12px; border-radius: 3px; }
+
+.chart-container { width: 100%; height: 250px; margin-top: 10px; }
+
+/* Roulette Board */
+.board-panel { width: 320px; }
+.roulette-board { font-size: 11px; border-collapse: collapse; }
+.roulette-board td { width: 28px; height: 24px; text-align: center; font-weight: bold; border: 1px solid #fff; color: #fff; cursor: default; }
+.rb-red { background: #cc0000; }
+.rb-black { background: #333; }
+.rb-green { background: #006600; }
+.rb-label { background: #888; font-size: 10px; }
+.rb-highlight { outline: 3px solid yellow; outline-offset: -2px; }
+
+/* Leaderboard Panel */
+.lb-panel { width: 280px; }
+.lb-panel h3 { margin-bottom: 6px; font-size: 13px; background: #006600; color: #fff; padding: 4px; text-align: center; }
+.lb-name-input { width: 100%; font-size: 12px; padding: 4px; border: 1px solid #ccc; text-align: center; margin-bottom: 6px; }
+.lb-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.lb-table th { background: #006600; color: #fff; padding: 4px; text-align: left; font-size: 10px; font-weight: bold; }
+.lb-table th.right { text-align: right; }
+.lb-table td { padding: 3px 4px; border: 1px solid #ddd; }
+.lb-table tr:nth-child(even) { background: #f5f5f5; }
+.lb-table .rank { text-align: center; width: 28px; font-weight: bold; color: #666; }
+.lb-table .max-col { text-align: right; font-weight: bold; color: #006600; }
+.lb-table .games-col { text-align: right; color: #666; }
+.lb-table tr.current-row { background: #d4ffd4 !important; }
+.lb-table tr.current-row td { font-weight: bold; color: #006600; }
+.current-badge { background: #006600; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 3px; font-weight: bold; }
+.rank-1 { color: #d4af37 !important; }
+.rank-2 { color: #888 !important; }
+.rank-3 { color: #cd7f32 !important; }
+
+.game-over { font-size: 20px; color: #cc0000; font-weight: bold; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Left: Bet Entry -->
+  <div class="panel bet-panel">
+    <h3>Place Your Bets</h3>
+    <table class="bet-table">
+      <tr><td class="label">Bet</td><td>Amount</td><td class="label">Bet</td><td>Amount</td></tr>
+      <tr><td class="label">Red</td><td><input type="number" id="bet-red" min="0" step="1"></td>
+          <td class="label">0</td><td><input type="number" id="bet-0" min="0" step="1"></td></tr>
+      <tr><td class="label">Black</td><td><input type="number" id="bet-black" min="0" step="1"></td>
+          <td class="label">00</td><td><input type="number" id="bet-00" min="0" step="1"></td></tr>
+      <tr><td class="label">Odd</td><td><input type="number" id="bet-odd" min="0" step="1"></td>
+          <td class="label" colspan="2"><hr></td></tr>
+      <tr><td class="label">Even</td><td><input type="number" id="bet-even" min="0" step="1"></td>
+          <td class="label">Straight</td><td><select id="bet-straight-num" style="width:45px;font-size:11px"><option value="">--</option></select></td></tr>
+      <tr><td class="label">1 to 18</td><td><input type="number" id="bet-1to18" min="0" step="1"></td>
+          <td></td><td><input type="number" id="bet-straight" min="0" step="1" placeholder="Amt"></td></tr>
+      <tr><td class="label">19 to 36</td><td><input type="number" id="bet-19to36" min="0" step="1"></td>
+          <td class="label">Straight 2</td><td><select id="bet-straight2-num" style="width:45px;font-size:11px"><option value="">--</option></select></td></tr>
+      <tr><td class="label">1st 12</td><td><input type="number" id="bet-1st12" min="0" step="1"></td>
+          <td></td><td><input type="number" id="bet-straight2" min="0" step="1" placeholder="Amt"></td></tr>
+      <tr><td class="label">2nd 12</td><td><input type="number" id="bet-2nd12" min="0" step="1"></td>
+          <td class="label" colspan="2"><hr></td></tr>
+      <tr><td class="label">3rd 12</td><td><input type="number" id="bet-3rd12" min="0" step="1"></td>
+          <td class="label">Column 1</td><td><input type="number" id="bet-col1" min="0" step="1"></td></tr>
+      <tr><td class="label">Column 2</td><td><input type="number" id="bet-col2" min="0" step="1"></td>
+          <td class="label">Column 3</td><td><input type="number" id="bet-col3" min="0" step="1"></td></tr>
+    </table>
+    <div style="margin-top:8px; font-size:12px;">
+      <label><b>Row (1-12):</b></label>
+      <select id="bet-row-num" style="width:50px;font-size:11px">
+        <option value="">--</option>
+      </select>
+      <input type="number" id="bet-row" min="0" step="1" style="width:60px;font-size:12px" placeholder="Amt">
+    </div>
+    <div class="buttons">
+      <button class="btn btn-bet" id="btn-bet" onclick="placeBet()">Bet</button>
+      <button class="btn btn-reset" onclick="startAgain()">Start Again</button>
+      <button class="btn btn-stop" id="btn-stop" onclick="stopRepeat()" style="display:none;">Stop</button>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-repeat" id="btn-r100" onclick="repeatBet(100)">Repeat Last Bet 100x</button>
+      <button class="btn btn-repeat" id="btn-r1000" onclick="repeatBet(1000)">Repeat Last Bet 1000x</button>
+    </div>
+    <div style="margin-top:6px;font-size:12px;">
+      <label><b>Speed:</b></label>
+      <input type="range" id="speed-slider" min="1" max="100" value="50" style="width:140px;vertical-align:middle;">
+      <span id="speed-label">50ms</span>
+    </div>
+  </div>
+
+  <!-- Middle: Stats + Chart -->
+  <div class="panel stats-panel">
+    <div class="stats-grid">
+      <span class="lbl">Starting Cash:</span><span class="val" id="stat-start">$1,000.00</span>
+      <span class="lbl">Games Played:</span><span class="val" id="stat-games">0</span>
+      <span class="lbl">Profit/Loss:</span><span class="val" id="stat-pnl">$0.00</span>
+      <span class="lbl">Max Reached:</span><span class="val" id="stat-max" style="color:#006600">$1,000.00</span>
+    </div>
+    <div class="balance-box balance-pos" id="balance-box">
+      Current Balance: <span id="stat-balance">$1,000.00</span>
+      <span id="game-over-text"></span>
+    </div>
+
+    <div class="spin-result">
+      <div class="spin-number" id="spin-display" style="visibility:hidden">-</div>
+      <div class="spin-tags" id="spin-tags"></div>
+    </div>
+
+    <!-- Board inline under spin result -->
+    <div style="margin-bottom:8px;">
+      <table class="roulette-board" id="roulette-board"></table>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="equityChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Right: Leaderboard -->
+  <div class="panel lb-panel">
+    <h3>🏆 High Scores</h3>
+    <input class="lb-name-input" id="player-name" placeholder="Enter your name..." maxlength="20">
+    <table class="lb-table" id="lb-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th class="right">Max $</th>
+          <th class="right">Games</th>
+        </tr>
+      </thead>
+      <tbody id="lb-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Roulette data
+const RED_NUMS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+const BLACK_NUMS = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
+const STARTING_CASH = 1000;
+
+function isRed(n) { return RED_NUMS.includes(n); }
+function isBlack(n) { return BLACK_NUMS.includes(n); }
+function getColor(n) { if (n === 0 || n === 37) return 'green'; return isRed(n) ? 'red' : 'black'; }
+function numLabel(n) { return n === 37 ? '00' : String(n); }
+
+// State
+let balance, gamesPlayed, equityData, lastBets, maxReached;
+
+function getPlayerName() {
+  const name = (document.getElementById('player-name').value || '').trim();
+  return name || 'anon';
+}
+
+function init() {
+  balance = STARTING_CASH;
+  gamesPlayed = 0;
+  maxReached = STARTING_CASH;
+  equityData = [STARTING_CASH];
+  lastBets = null;
+  updateDisplay();
+  updateLeaderboard();
+  document.getElementById('spin-display').style.visibility = 'hidden';
+  document.getElementById('spin-tags').innerHTML = '';
+  document.getElementById('game-over-text').textContent = '';
+  updateChart();
+}
+
+function startAgain() {
+  clearAllBets();
+  init();
+}
+
+function clearAllBets() {
+  document.querySelectorAll('.bet-panel input[type=number]').forEach(i => i.value = '');
+  document.querySelectorAll('.bet-panel select').forEach(s => s.value = '');
+}
+
+function collectBets() {
+  const bets = [];
+  const get = (id) => parseFloat(document.getElementById(id).value) || 0;
+  const getSelect = (id) => document.getElementById(id).value;
+
+  if (get('bet-red') > 0) bets.push({ type: 'red', amount: get('bet-red') });
+  if (get('bet-black') > 0) bets.push({ type: 'black', amount: get('bet-black') });
+  if (get('bet-odd') > 0) bets.push({ type: 'odd', amount: get('bet-odd') });
+  if (get('bet-even') > 0) bets.push({ type: 'even', amount: get('bet-even') });
+  if (get('bet-1to18') > 0) bets.push({ type: '1to18', amount: get('bet-1to18') });
+  if (get('bet-19to36') > 0) bets.push({ type: '19to36', amount: get('bet-19to36') });
+  if (get('bet-1st12') > 0) bets.push({ type: '1st12', amount: get('bet-1st12') });
+  if (get('bet-2nd12') > 0) bets.push({ type: '2nd12', amount: get('bet-2nd12') });
+  if (get('bet-3rd12') > 0) bets.push({ type: '3rd12', amount: get('bet-3rd12') });
+  if (get('bet-col1') > 0) bets.push({ type: 'col1', amount: get('bet-col1') });
+  if (get('bet-col2') > 0) bets.push({ type: 'col2', amount: get('bet-col2') });
+  if (get('bet-col3') > 0) bets.push({ type: 'col3', amount: get('bet-col3') });
+  if (get('bet-0') > 0) bets.push({ type: 'straight', number: 0, amount: get('bet-0') });
+  if (get('bet-00') > 0) bets.push({ type: 'straight', number: 37, amount: get('bet-00') });
+
+  const sn = getSelect('bet-straight-num');
+  if (sn !== '' && get('bet-straight') > 0) bets.push({ type: 'straight', number: parseInt(sn), amount: get('bet-straight') });
+  const sn2 = getSelect('bet-straight2-num');
+  if (sn2 !== '' && get('bet-straight2') > 0) bets.push({ type: 'straight', number: parseInt(sn2), amount: get('bet-straight2') });
+
+  const rn = getSelect('bet-row-num');
+  if (rn !== '' && get('bet-row') > 0) bets.push({ type: 'row', row: parseInt(rn), amount: get('bet-row') });
+
+  return bets;
+}
+
+function totalBetAmount(bets) {
+  return bets.reduce((s, b) => s + b.amount, 0);
+}
+
+function spin() {
+  return Math.floor(Math.random() * 38);
+}
+
+function resolveBets(bets, result) {
+  let totalWin = 0;
+  const num = result;
+  const isNum = (num >= 1 && num <= 36);
+
+  for (const bet of bets) {
+    let win = false;
+    let payout = 0;
+
+    switch (bet.type) {
+      case 'red': win = isNum && isRed(num); payout = bet.amount * 2; break;
+      case 'black': win = isNum && isBlack(num); payout = bet.amount * 2; break;
+      case 'odd': win = isNum && num % 2 === 1; payout = bet.amount * 2; break;
+      case 'even': win = isNum && num % 2 === 0; payout = bet.amount * 2; break;
+      case '1to18': win = num >= 1 && num <= 18; payout = bet.amount * 2; break;
+      case '19to36': win = num >= 19 && num <= 36; payout = bet.amount * 2; break;
+      case '1st12': win = num >= 1 && num <= 12; payout = bet.amount * 3; break;
+      case '2nd12': win = num >= 13 && num <= 24; payout = bet.amount * 3; break;
+      case '3rd12': win = num >= 25 && num <= 36; payout = bet.amount * 3; break;
+      case 'col1': win = isNum && num % 3 === 1; payout = bet.amount * 3; break;
+      case 'col2': win = isNum && num % 3 === 2; payout = bet.amount * 3; break;
+      case 'col3': win = isNum && num % 3 === 0; payout = bet.amount * 3; break;
+      case 'straight': win = num === bet.number; payout = bet.amount * 36; break;
+      case 'row': {
+        const base = (bet.row - 1) * 3;
+        win = (num === base + 1 || num === base + 2 || num === base + 3);
+        payout = bet.amount * 12;
+        break;
+      }
+    }
+    if (win) totalWin += payout;
+  }
+  return totalWin;
+}
+
+function getSpinProperties(num) {
+  const tags = [];
+  if (num === 0) { tags.push('0', 'Green'); return tags; }
+  if (num === 37) { tags.push('00', 'Green'); return tags; }
+  tags.push(String(num));
+  tags.push(isRed(num) ? 'Red' : 'Black');
+  tags.push(num % 2 === 1 ? 'Odd' : 'Even');
+  tags.push(num <= 18 ? '1-18' : '19-36');
+  if (num <= 12) tags.push('1st 12');
+  else if (num <= 24) tags.push('2nd 12');
+  else tags.push('3rd 12');
+  const row = Math.ceil(num / 3);
+  tags.push('Row ' + row);
+  const col = num % 3 === 0 ? 3 : num % 3;
+  tags.push('Column ' + col);
+  return tags;
+}
+
+function placeBet() {
+  const bets = collectBets();
+  if (bets.length === 0) return;
+  lastBets = bets;
+  executeBets(bets);
+}
+
+function executeBets(bets) {
+  const wager = totalBetAmount(bets);
+  if (wager > balance || balance <= 0) {
+    gameOver();
+    return;
+  }
+
+  balance -= wager;
+  const result = spin();
+  const winnings = resolveBets(bets, result);
+  balance += winnings;
+  gamesPlayed++;
+  if (balance > maxReached) maxReached = balance;
+  equityData.push(balance);
+
+  showSpin(result);
+  updateDisplay();
+  updateChart();
+  highlightBoard(result);
+  updateLeaderboard();
+
+  if (balance <= 0) {
+    gameOver();
+  }
+}
+
+function gameOver() {
+  document.getElementById('game-over-text').textContent = ' Game Over!!!';
+  // Save score to leaderboard
+  saveScore();
+  updateLeaderboard();
+}
+
+// --- Repeat with animation ---
+let running = false;
+let stopRequested = false;
+
+function getDelay() {
+  const val = parseInt(document.getElementById('speed-slider').value);
+  return Math.max(1, Math.round(201 - val * 2));
+}
+
+document.getElementById('speed-slider').addEventListener('input', function() {
+  document.getElementById('speed-label').textContent = getDelay() + 'ms';
+});
+document.getElementById('speed-label').textContent = getDelay() + 'ms';
+
+function setRunning(state) {
+  running = state;
+  document.getElementById('btn-stop').style.display = state ? 'inline-block' : 'none';
+  document.getElementById('btn-bet').disabled = state;
+  document.getElementById('btn-r100').disabled = state;
+  document.getElementById('btn-r1000').disabled = state;
+}
+
+function stopRepeat() {
+  stopRequested = true;
+}
+
+const CHART_UPDATE_INTERVAL = 5;
+
+async function repeatBet(times) {
+  const bets = lastBets || collectBets();
+  if (bets.length === 0) return;
+  lastBets = bets;
+  stopRequested = false;
+  setRunning(true);
+
+  for (let i = 0; i < times; i++) {
+    if (stopRequested) break;
+
+    const wager = totalBetAmount(bets);
+    if (wager > balance || balance <= 0) {
+      gameOver();
+      break;
+    }
+    balance -= wager;
+    const result = spin();
+    const winnings = resolveBets(bets, result);
+    balance += winnings;
+    gamesPlayed++;
+    if (balance > maxReached) maxReached = balance;
+    equityData.push(balance);
+
+    showSpin(result);
+    highlightBoard(result);
+    updateDisplay();
+    updateLeaderboard();
+
+    if (i % CHART_UPDATE_INTERVAL === 0 || i === times - 1) {
+      updateChart();
+    }
+
+    if (balance <= 0) {
+      gameOver();
+      break;
+    }
+
+    await new Promise(r => setTimeout(r, getDelay()));
+  }
+
+  updateChart();
+  setRunning(false);
+}
+
+// --- Display ---
+function showSpin(num) {
+  const el = document.getElementById('spin-display');
+  el.style.visibility = 'visible';
+  el.textContent = numLabel(num);
+  el.className = 'spin-number spin-' + getColor(num);
+
+  const tags = getSpinProperties(num);
+  document.getElementById('spin-tags').innerHTML = tags.map(t => `<span class="spin-tag">${t}</span>`).join('');
+}
+
+function formatMoney(n) {
+  const neg = n < 0;
+  const s = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (neg ? '-$' : '$') + s;
+}
+
+function updateDisplay() {
+  document.getElementById('stat-start').textContent = formatMoney(STARTING_CASH);
+  document.getElementById('stat-games').textContent = gamesPlayed.toLocaleString();
+
+  const pnl = balance - STARTING_CASH;
+  const pnlEl = document.getElementById('stat-pnl');
+  pnlEl.textContent = (pnl >= 0 ? '+' : '') + formatMoney(pnl);
+  pnlEl.style.color = pnl >= 0 ? '#006600' : '#cc0000';
+
+  document.getElementById('stat-max').textContent = formatMoney(maxReached);
+
+  document.getElementById('stat-balance').textContent = formatMoney(balance);
+  const box = document.getElementById('balance-box');
+  box.className = 'balance-box ' + (balance >= STARTING_CASH ? 'balance-pos' : 'balance-neg');
+}
+
+// --- Chart ---
+let chart;
+function initChart() {
+  const ctx = document.getElementById('equityChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Balance',
+        data: [],
+        borderColor: '#006600',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+        tension: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          display: true,
+          title: { display: true, text: 'Spin #', font: { size: 11 } },
+          ticks: { maxTicksLimit: 10, font: { size: 10 } }
+        },
+        y: {
+          display: true,
+          title: { display: true, text: 'Balance ($)', font: { size: 11 } },
+          ticks: {
+            font: { size: 10 },
+            callback: v => '$' + v.toLocaleString()
+          },
+          grid: { color: '#e0e0e0' }
+        }
+      }
+    }
+  });
+}
+
+function updateChart() {
+  let data = equityData;
+  let labels;
+  const MAX_POINTS = 500;
+  if (data.length > MAX_POINTS) {
+    const step = Math.ceil(data.length / MAX_POINTS);
+    const sampled = [];
+    const sampledLabels = [];
+    for (let i = 0; i < data.length; i += step) {
+      sampled.push(data[i]);
+      sampledLabels.push(i);
+    }
+    if (sampledLabels[sampledLabels.length - 1] !== data.length - 1) {
+      sampled.push(data[data.length - 1]);
+      sampledLabels.push(data.length - 1);
+    }
+    data = sampled;
+    labels = sampledLabels;
+  } else {
+    labels = data.map((_, i) => i);
+  }
+
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = data;
+  chart.update();
+}
+
+// --- Leaderboard ---
+function getHighScores() {
+  try {
+    return JSON.parse(localStorage.getItem('roulette-highscores') || '[]');
+  } catch { return []; }
+}
+
+function saveHighScores(scores) {
+  localStorage.setItem('roulette-highscores', JSON.stringify(scores));
+}
+
+function saveScore() {
+  if (maxReached <= STARTING_CASH) return; // Don't save if never went above start
+  const scores = getHighScores();
+  scores.push({
+    name: getPlayerName(),
+    maxBalance: maxReached,
+    games: gamesPlayed,
+    date: Date.now()
+  });
+  // Sort by max balance descending, keep top 20
+  scores.sort((a, b) => b.maxBalance - a.maxBalance);
+  saveHighScores(scores.slice(0, 20));
+}
+
+function updateLeaderboard() {
+  const scores = getHighScores();
+  const tbody = document.getElementById('lb-body');
+  let html = '';
+
+  // Current game row (always at top)
+  const name = getPlayerName();
+  html += `<tr class="current-row">`;
+  html += `<td class="rank"><span class="current-badge">YOU</span></td>`;
+  html += `<td>${escHtml(name)}</td>`;
+  html += `<td class="max-col">${formatMoney(maxReached)}</td>`;
+  html += `<td class="games-col">${gamesPlayed.toLocaleString()}</td>`;
+  html += `</tr>`;
+
+  // Saved high scores
+  for (let i = 0; i < scores.length; i++) {
+    const s = scores[i];
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    html += `<tr>`;
+    html += `<td class="rank ${rankClass}">${i + 1}</td>`;
+    html += `<td>${escHtml(s.name)}</td>`;
+    html += `<td class="max-col">${formatMoney(s.maxBalance)}</td>`;
+    html += `<td class="games-col">${s.games.toLocaleString()}</td>`;
+    html += `</tr>`;
+  }
+
+  tbody.innerHTML = html;
+}
+
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// --- Roulette Board ---
+function buildBoard() {
+  const table = document.getElementById('roulette-board');
+  let html = '';
+
+  // Row 1: numbers 1,4,7,10,...,34
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">1-18</td>`;
+  html += `<td class="rb-label" style="font-size:9px">1st</td>`;
+  for (let col = 1; col <= 12; col++) {
+    const num = (col - 1) * 3 + 1;
+    const c = getColor(num);
+    html += `<td class="rb-${c}" id="board-${num}">${num}</td>`;
+  }
+  html += `<td class="rb-label">Row 00</td>`;
+  html += '</tr>';
+
+  // Row 2: numbers 2,5,8,11,...,35
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">Odd</td>`;
+  html += `<td class="rb-label" style="font-size:9px">12</td>`;
+  for (let col = 1; col <= 12; col++) {
+    const num = (col - 1) * 3 + 2;
+    const c = getColor(num);
+    html += `<td class="rb-${c}" id="board-${num}">${num}</td>`;
+  }
+  html += `<td class="rb-label">Row</td>`;
+  html += '</tr>';
+
+  // Row 3: numbers 3,6,9,...,36
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">Red</td>`;
+  html += `<td class="rb-label" style="font-size:9px">2nd</td>`;
+  for (let col = 1; col <= 12; col++) {
+    const num = col * 3;
+    const c = getColor(num);
+    html += `<td class="rb-${c}" id="board-${num}">${num}</td>`;
+  }
+  html += `<td class="rb-label">Row</td>`;
+  html += '</tr>';
+
+  // Labels row with 0
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">Black</td>`;
+  html += `<td class="rb-green" id="board-0">0</td>`;
+  for (let col = 1; col <= 12; col++) {
+    html += `<td class="rb-label" style="font-size:9px">${col}</td>`;
+  }
+  html += `<td class="rb-label">Row</td>`;
+  html += '</tr>';
+
+  // Sections row
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">Even</td>`;
+  html += `<td class="rb-label" style="font-size:9px">3rd</td>`;
+  html += `<td class="rb-label" colspan="4" style="font-size:9px">1st 12</td>`;
+  html += `<td class="rb-label" colspan="4" style="font-size:9px">2nd 12</td>`;
+  html += `<td class="rb-label" colspan="4" style="font-size:9px">3rd 12</td>`;
+  html += `<td class="rb-label">Row</td>`;
+  html += '</tr>';
+
+  // 00 row
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">19-36</td>`;
+  html += `<td class="rb-green" id="board-37">00</td>`;
+  html += `<td class="rb-label" colspan="4" style="font-size:9px">Col 1</td>`;
+  html += `<td class="rb-label" colspan="4" style="font-size:9px">Col 2</td>`;
+  html += `<td class="rb-label" colspan="4" style="font-size:9px">Col 3</td>`;
+  html += `<td class="rb-label">Row</td>`;
+  html += '</tr>';
+
+  table.innerHTML = html;
+}
+
+function highlightBoard(num) {
+  document.querySelectorAll('.rb-highlight').forEach(el => el.classList.remove('rb-highlight'));
+  const el = document.getElementById('board-' + num);
+  if (el) el.classList.add('rb-highlight');
+}
+
+// Populate selects
+function populateSelects() {
+  const selects = ['bet-straight-num', 'bet-straight2-num'];
+  selects.forEach(id => {
+    const sel = document.getElementById(id);
+    for (let i = 0; i <= 36; i++) {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = i;
+      sel.appendChild(opt);
+    }
+    const opt00 = document.createElement('option');
+    opt00.value = 37;
+    opt00.textContent = '00';
+    sel.appendChild(opt00);
+  });
+
+  const rowSel = document.getElementById('bet-row-num');
+  for (let i = 1; i <= 12; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = 'Row ' + i;
+    rowSel.appendChild(opt);
+  }
+}
+
+// Init
+populateSelects();
+buildBoard();
+initChart();
+init();
+</script>
+</body>
+</html>
