@@ -8,10 +8,11 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
+
+/* ===== DESKTOP LAYOUT ===== */
 .app { display: flex; gap: 10px; flex-wrap: wrap; max-width: 1500px; margin: 0 auto; }
 .panel { background: #fff; border: 1px solid #ccc; padding: 10px; }
 
-/* Bet Entry Panel */
 .bet-panel { width: 280px; }
 .bet-panel h3 { margin-bottom: 6px; font-size: 13px; background: #006600; color: #fff; padding: 4px; text-align: center; }
 .bet-table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -28,7 +29,6 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .buttons { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
 
-/* Stats Panel */
 .stats-panel { flex: 1; min-width: 300px; }
 .stats-grid { display: grid; grid-template-columns: auto auto; gap: 2px 10px; font-size: 13px; margin-bottom: 10px; border: 2px solid #006600; padding: 8px; }
 .stats-grid .lbl { font-weight: bold; }
@@ -48,7 +48,6 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
 
 .chart-container { width: 100%; height: 250px; margin-top: 10px; }
 
-/* Roulette Board */
 .board-panel { width: 320px; }
 .roulette-board { font-size: 11px; border-collapse: collapse; }
 .roulette-board td { width: 28px; height: 24px; text-align: center; font-weight: bold; border: 1px solid #fff; color: #fff; cursor: default; }
@@ -58,7 +57,6 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
 .rb-label { background: #888; font-size: 10px; }
 .rb-highlight { outline: 3px solid yellow; outline-offset: -2px; }
 
-/* Leaderboard Panel */
 .lb-panel { width: 280px; }
 .lb-panel h3 { margin-bottom: 6px; font-size: 13px; background: #006600; color: #fff; padding: 4px; text-align: center; }
 .lb-name-input { width: 100%; font-size: 12px; padding: 4px; border: 1px solid #ccc; text-align: center; margin-bottom: 6px; }
@@ -79,12 +77,335 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
 
 .game-over { font-size: 20px; color: #cc0000; font-weight: bold; animation: pulse 1s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* ===== MOBILE ELEMENTS (hidden on desktop) ===== */
+.mobile-only { display: none; }
+.mobile-name-banner { display: none; }
+.mobile-balance-hero { display: none; }
+.mobile-stats-strip { display: none; }
+.mobile-spin-row { display: none; }
+.mobile-tab-bar { display: none; }
+.mobile-tab-content { display: none; }
+
+/* ===== MOBILE LAYOUT ===== */
+@media (max-width: 768px) {
+  body { padding: 6px; }
+
+  /* Hide desktop layout */
+  .app { display: none; }
+
+  /* Show mobile elements */
+  .mobile-only { display: block; }
+
+  .mobile-name-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #006600;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .mobile-name-banner .name-icon { font-size: 20px; }
+  .mobile-name-banner input {
+    flex: 1;
+    font-size: 14px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.95);
+    font-weight: bold;
+    color: #333;
+  }
+  .mobile-name-banner input::placeholder { color: #999; font-weight: normal; }
+
+  .mobile-balance-hero {
+    display: block;
+    text-align: center;
+    padding: 10px 8px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    border: 3px solid;
+  }
+  .mobile-balance-hero .bal-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .mobile-balance-hero .bal-amount { font-size: 28px; }
+  .mobile-balance-hero .bal-gameover { color: #cc0000; font-size: 14px; animation: pulse 1s infinite; }
+
+  .mobile-stats-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .m-stat-box {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px 4px;
+    text-align: center;
+    border-radius: 3px;
+  }
+  .m-stat-box .m-stat-label { font-size: 9px; color: #666; text-transform: uppercase; }
+  .m-stat-box .m-stat-value { font-size: 14px; font-weight: bold; }
+
+  .mobile-spin-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    border-radius: 3px;
+  }
+  .m-spin-num {
+    width: 50px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: bold;
+    border: 2px solid #333;
+    border-radius: 4px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .m-spin-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+  .m-spin-tag {
+    background: #eee;
+    border: 1px solid #bbb;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 2px;
+  }
+
+  .mobile-tab-bar {
+    display: flex;
+    background: #006600;
+    border-radius: 4px 4px 0 0;
+    overflow: hidden;
+  }
+  .m-tab {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    border: none;
+    background: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-tab.active {
+    color: #fff;
+    background: rgba(255,255,255,0.15);
+    border-bottom: 2px solid #fff;
+  }
+
+  .mobile-tab-content {
+    display: none;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 10px;
+  }
+  .mobile-tab-content.active { display: block; }
+
+  /* Mobile bet grid */
+  .m-bet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .m-bet-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .m-bet-item label {
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 48px;
+  }
+  .m-bet-item input, .m-bet-item select {
+    width: 60px;
+    font-size: 12px;
+    padding: 4px;
+    border: 1px solid #ccc;
+    text-align: right;
+    border-radius: 3px;
+  }
+  .m-bet-divider {
+    grid-column: 1 / -1;
+    border-top: 1px solid #ddd;
+    margin: 2px 0;
+  }
+  .m-action-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .m-btn {
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid;
+    border-radius: 4px;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-btn-bet { background: #006600; color: #fff; border-color: #006600; }
+  .m-btn-reset { background: #fff; color: #cc0000; border-color: #cc0000; }
+  .m-btn-repeat { background: #cc0000; color: #fff; border-color: #cc0000; font-size: 11px; }
+  .m-btn-stop { background: #ff8800; color: #fff; border-color: #ff8800; }
+  .m-btn:disabled { opacity: 0.5; }
+  .m-speed-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 11px;
+  }
+  .m-speed-row input[type=range] { flex: 1; }
+
+  /* Mobile chart */
+  .m-chart-container { width: 100%; height: 200px; }
+
+  /* Mobile board */
+  .m-board-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mobile leaderboard */
+  .m-lb-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .m-lb-table th {
+    background: #006600; color: #fff;
+    padding: 6px 4px; text-align: left; font-size: 11px;
+  }
+  .m-lb-table th.right { text-align: right; }
+  .m-lb-table td { padding: 5px 4px; border-bottom: 1px solid #eee; }
+  .m-lb-table tr.current-row { background: #d4ffd4; }
+  .m-lb-table tr.current-row td { font-weight: bold; color: #006600; }
+  .m-lb-table .rank { text-align: center; width: 28px; }
+  .m-lb-table .max-col { text-align: right; font-weight: bold; color: #006600; }
+  .m-lb-table .games-col { text-align: right; color: #666; }
+}
 </style>
 </head>
 <body>
 
+<!-- ===== MOBILE LAYOUT ===== -->
+<div class="mobile-only">
+  <!-- Name banner -->
+  <div class="mobile-name-banner">
+    <span class="name-icon">&#x1F3B0;</span>
+    <input id="m-player-name" placeholder="Enter your name..." maxlength="20">
+  </div>
+
+  <!-- Balance hero -->
+  <div class="mobile-balance-hero balance-pos" id="m-balance-hero">
+    <div class="bal-label">Current Balance</div>
+    <div class="bal-amount" id="m-stat-balance">$1,000.00</div>
+    <div class="bal-gameover" id="m-game-over-text"></div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="mobile-stats-strip">
+    <div class="m-stat-box">
+      <div class="m-stat-label">P&L</div>
+      <div class="m-stat-value" id="m-stat-pnl" style="color:#006600">+$0.00</div>
+    </div>
+    <div class="m-stat-box">
+      <div class="m-stat-label">Max</div>
+      <div class="m-stat-value" id="m-stat-max" style="color:#006600">$1,000</div>
+    </div>
+    <div class="m-stat-box">
+      <div class="m-stat-label">Spins</div>
+      <div class="m-stat-value" id="m-stat-games">0</div>
+    </div>
+  </div>
+
+  <!-- Spin result -->
+  <div class="mobile-spin-row" id="m-spin-row" style="display:none;">
+    <div class="m-spin-num" id="m-spin-display">-</div>
+    <div class="m-spin-tags" id="m-spin-tags"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="mobile-tab-bar">
+    <div class="m-tab active" data-tab="bets">BETS</div>
+    <div class="m-tab" data-tab="chart">CHART</div>
+    <div class="m-tab" data-tab="board">BOARD</div>
+    <div class="m-tab" data-tab="scores">SCORES</div>
+  </div>
+
+  <!-- Bets Tab -->
+  <div class="mobile-tab-content active" id="m-tab-bets">
+    <div class="m-bet-grid">
+      <div class="m-bet-item"><label>Red</label><input type="number" id="m-bet-red" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>Black</label><input type="number" id="m-bet-black" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>Odd</label><input type="number" id="m-bet-odd" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>Even</label><input type="number" id="m-bet-even" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>1-18</label><input type="number" id="m-bet-1to18" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>19-36</label><input type="number" id="m-bet-19to36" min="0" placeholder="$"></div>
+      <div class="m-bet-divider"></div>
+      <div class="m-bet-item"><label>1st 12</label><input type="number" id="m-bet-1st12" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>2nd 12</label><input type="number" id="m-bet-2nd12" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>3rd 12</label><input type="number" id="m-bet-3rd12" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>Col 1</label><input type="number" id="m-bet-col1" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>Col 2</label><input type="number" id="m-bet-col2" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>Col 3</label><input type="number" id="m-bet-col3" min="0" placeholder="$"></div>
+      <div class="m-bet-divider"></div>
+      <div class="m-bet-item"><label>0</label><input type="number" id="m-bet-0" min="0" placeholder="$"></div>
+      <div class="m-bet-item"><label>00</label><input type="number" id="m-bet-00" min="0" placeholder="$"></div>
+    </div>
+    <div class="m-action-row">
+      <button class="m-btn m-btn-bet" id="m-btn-bet" onclick="placeBet()">BET</button>
+      <button class="m-btn m-btn-reset" onclick="startAgain()">RESET</button>
+    </div>
+    <div class="m-action-row">
+      <button class="m-btn m-btn-repeat" id="m-btn-r100" onclick="repeatBet(100)">Repeat 100x</button>
+      <button class="m-btn m-btn-repeat" id="m-btn-r1000" onclick="repeatBet(1000)">Repeat 1000x</button>
+    </div>
+    <div class="m-action-row" id="m-stop-row" style="display:none;">
+      <button class="m-btn m-btn-stop" onclick="stopRepeat()" style="grid-column:1/-1;">STOP</button>
+    </div>
+    <div class="m-speed-row">
+      <b>Speed:</b>
+      <input type="range" id="m-speed-slider" min="1" max="100" value="50">
+      <span id="m-speed-label">101ms</span>
+    </div>
+  </div>
+
+  <!-- Chart Tab -->
+  <div class="mobile-tab-content" id="m-tab-chart">
+    <div class="m-chart-container">
+      <canvas id="m-equityChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Board Tab -->
+  <div class="mobile-tab-content" id="m-tab-board">
+    <div class="m-board-scroll">
+      <table class="roulette-board" id="m-roulette-board"></table>
+    </div>
+  </div>
+
+  <!-- Scores Tab -->
+  <div class="mobile-tab-content" id="m-tab-scores">
+    <table class="m-lb-table" id="m-lb-table">
+      <thead>
+        <tr><th>#</th><th>Name</th><th class="right">Max $</th><th class="right">Games</th></tr>
+      </thead>
+      <tbody id="m-lb-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== DESKTOP LAYOUT ===== -->
 <div class="app">
-  <!-- Left: Bet Entry -->
   <div class="panel bet-panel">
     <h3>Place Your Bets</h3>
     <table class="bet-table">
@@ -112,9 +433,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
     </table>
     <div style="margin-top:8px; font-size:12px;">
       <label><b>Row (1-12):</b></label>
-      <select id="bet-row-num" style="width:50px;font-size:11px">
-        <option value="">--</option>
-      </select>
+      <select id="bet-row-num" style="width:50px;font-size:11px"><option value="">--</option></select>
       <input type="number" id="bet-row" min="0" step="1" style="width:60px;font-size:12px" placeholder="Amt">
     </div>
     <div class="buttons">
@@ -133,7 +452,6 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
     </div>
   </div>
 
-  <!-- Middle: Stats + Chart -->
   <div class="panel stats-panel">
     <div class="stats-grid">
       <span class="lbl">Starting Cash:</span><span class="val" id="stat-start">$1,000.00</span>
@@ -145,34 +463,24 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       Current Balance: <span id="stat-balance">$1,000.00</span>
       <span id="game-over-text"></span>
     </div>
-
     <div class="spin-result">
       <div class="spin-number" id="spin-display" style="visibility:hidden">-</div>
       <div class="spin-tags" id="spin-tags"></div>
     </div>
-
-    <!-- Board inline under spin result -->
     <div style="margin-bottom:8px;">
       <table class="roulette-board" id="roulette-board"></table>
     </div>
-
     <div class="chart-container">
       <canvas id="equityChart"></canvas>
     </div>
   </div>
 
-  <!-- Right: Leaderboard -->
   <div class="panel lb-panel">
-    <h3>🏆 High Scores</h3>
+    <h3>&#x1F3C6; High Scores</h3>
     <input class="lb-name-input" id="player-name" placeholder="Enter your name..." maxlength="20">
     <table class="lb-table" id="lb-table">
       <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th class="right">Max $</th>
-          <th class="right">Games</th>
-        </tr>
+        <tr><th>#</th><th>Name</th><th class="right">Max $</th><th class="right">Games</th></tr>
       </thead>
       <tbody id="lb-body"></tbody>
     </table>
@@ -200,17 +508,14 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 
-// Live leaderboard data from Firebase
 let firebaseScores = [];
-
-// Listen for top 20 scores in real-time
 const scoresQuery = query(ref(db, 'scores'), orderByChild('score'), limitToLast(20));
 onValue(scoresQuery, (snapshot) => {
   const results = [];
   snapshot.forEach((child) => {
     results.push({ id: child.key, ...child.val() });
   });
-  firebaseScores = results.reverse(); // highest first
+  firebaseScores = results.reverse();
   renderLeaderboard();
 });
 
@@ -223,13 +528,14 @@ function submitScoreToFirebase(playerName, score, totalSpins) {
   });
 }
 
+// --- Helpers ---
+const isMobile = () => window.innerWidth <= 768;
+
 // --- Roulette data ---
 const RED_NUMS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-const BLACK_NUMS = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
 const STARTING_CASH = 1000;
 
 function isRed(n) { return RED_NUMS.includes(n); }
-function isBlack(n) { return BLACK_NUMS.includes(n); }
 function getColor(n) { if (n === 0 || n === 37) return 'green'; return isRed(n) ? 'red' : 'black'; }
 function numLabel(n) { return n === 37 ? '00' : String(n); }
 
@@ -237,10 +543,20 @@ function numLabel(n) { return n === 37 ? '00' : String(n); }
 let balance, gamesPlayed, equityData, lastBets, maxReached;
 let scoreSaved = false;
 
+// Sync name inputs between desktop and mobile
 function getPlayerName() {
-  const name = (document.getElementById('player-name').value || '').trim();
-  return name || 'anon';
+  const dName = document.getElementById('player-name').value.trim();
+  const mName = document.getElementById('m-player-name').value.trim();
+  return (isMobile() ? mName : dName) || 'anon';
 }
+
+// Keep name inputs in sync
+document.getElementById('player-name').addEventListener('input', function() {
+  document.getElementById('m-player-name').value = this.value;
+});
+document.getElementById('m-player-name').addEventListener('input', function() {
+  document.getElementById('player-name').value = this.value;
+});
 
 function init() {
   balance = STARTING_CASH;
@@ -254,23 +570,27 @@ function init() {
   document.getElementById('spin-display').style.visibility = 'hidden';
   document.getElementById('spin-tags').innerHTML = '';
   document.getElementById('game-over-text').textContent = '';
+  document.getElementById('m-game-over-text').textContent = '';
+  document.getElementById('m-spin-row').style.display = 'none';
   updateChart();
 }
 
-function startAgain() {
+window.startAgain = function() {
   clearAllBets();
   init();
-}
+};
 
 function clearAllBets() {
-  document.querySelectorAll('.bet-panel input[type=number]').forEach(i => i.value = '');
+  document.querySelectorAll('input[type=number]').forEach(i => {
+    if (!i.id.includes('player') && !i.id.includes('speed')) i.value = '';
+  });
   document.querySelectorAll('.bet-panel select').forEach(s => s.value = '');
 }
 
 function collectBets() {
   const bets = [];
-  const get = (id) => parseFloat(document.getElementById(id).value) || 0;
-  const getSelect = (id) => document.getElementById(id).value;
+  const prefix = isMobile() ? 'm-' : '';
+  const get = (id) => parseFloat(document.getElementById(prefix + id).value) || 0;
 
   if (get('bet-red') > 0) bets.push({ type: 'red', amount: get('bet-red') });
   if (get('bet-black') > 0) bets.push({ type: 'black', amount: get('bet-black') });
@@ -287,37 +607,32 @@ function collectBets() {
   if (get('bet-0') > 0) bets.push({ type: 'straight', number: 0, amount: get('bet-0') });
   if (get('bet-00') > 0) bets.push({ type: 'straight', number: 37, amount: get('bet-00') });
 
-  const sn = getSelect('bet-straight-num');
-  if (sn !== '' && get('bet-straight') > 0) bets.push({ type: 'straight', number: parseInt(sn), amount: get('bet-straight') });
-  const sn2 = getSelect('bet-straight2-num');
-  if (sn2 !== '' && get('bet-straight2') > 0) bets.push({ type: 'straight', number: parseInt(sn2), amount: get('bet-straight2') });
-
-  const rn = getSelect('bet-row-num');
-  if (rn !== '' && get('bet-row') > 0) bets.push({ type: 'row', row: parseInt(rn), amount: get('bet-row') });
+  // Desktop-only: straight picks and row
+  if (!isMobile()) {
+    const getSelect = (id) => document.getElementById(id).value;
+    const sn = getSelect('bet-straight-num');
+    if (sn !== '' && get('bet-straight') > 0) bets.push({ type: 'straight', number: parseInt(sn), amount: get('bet-straight') });
+    const sn2 = getSelect('bet-straight2-num');
+    if (sn2 !== '' && get('bet-straight2') > 0) bets.push({ type: 'straight', number: parseInt(sn2), amount: get('bet-straight2') });
+    const rn = getSelect('bet-row-num');
+    if (rn !== '' && get('bet-row') > 0) bets.push({ type: 'row', row: parseInt(rn), amount: get('bet-row') });
+  }
 
   return bets;
 }
 
-function totalBetAmount(bets) {
-  return bets.reduce((s, b) => s + b.amount, 0);
-}
-
-function spin() {
-  return Math.floor(Math.random() * 38);
-}
+function totalBetAmount(bets) { return bets.reduce((s, b) => s + b.amount, 0); }
+function spin() { return Math.floor(Math.random() * 38); }
 
 function resolveBets(bets, result) {
   let totalWin = 0;
   const num = result;
   const isNum = (num >= 1 && num <= 36);
-
   for (const bet of bets) {
-    let win = false;
-    let payout = 0;
-
+    let win = false, payout = 0;
     switch (bet.type) {
       case 'red': win = isNum && isRed(num); payout = bet.amount * 2; break;
-      case 'black': win = isNum && isBlack(num); payout = bet.amount * 2; break;
+      case 'black': win = isNum && !isRed(num); payout = bet.amount * 2; break;
       case 'odd': win = isNum && num % 2 === 1; payout = bet.amount * 2; break;
       case 'even': win = isNum && num % 2 === 0; payout = bet.amount * 2; break;
       case '1to18': win = num >= 1 && num <= 18; payout = bet.amount * 2; break;
@@ -352,10 +667,8 @@ function getSpinProperties(num) {
   if (num <= 12) tags.push('1st 12');
   else if (num <= 24) tags.push('2nd 12');
   else tags.push('3rd 12');
-  const row = Math.ceil(num / 3);
-  tags.push('Row ' + row);
-  const col = num % 3 === 0 ? 3 : num % 3;
-  tags.push('Column ' + col);
+  tags.push('Row ' + Math.ceil(num / 3));
+  tags.push('Col ' + (num % 3 === 0 ? 3 : num % 3));
   return tags;
 }
 
@@ -369,11 +682,7 @@ window.placeBet = function() {
 
 function executeBets(bets) {
   const wager = totalBetAmount(bets);
-  if (wager > balance || balance <= 0) {
-    gameOver();
-    return;
-  }
-
+  if (wager > balance || balance <= 0) { gameOver(); return; }
   balance -= wager;
   const result = spin();
   const winnings = resolveBets(bets, result);
@@ -381,20 +690,17 @@ function executeBets(bets) {
   gamesPlayed++;
   if (balance > maxReached) maxReached = balance;
   equityData.push(balance);
-
   showSpin(result);
   updateDisplay();
   updateChart();
   highlightBoard(result);
   renderLeaderboard();
-
-  if (balance <= 0) {
-    gameOver();
-  }
+  if (balance <= 0) gameOver();
 }
 
 function gameOver() {
   document.getElementById('game-over-text').textContent = ' Game Over!!!';
+  document.getElementById('m-game-over-text').textContent = 'Game Over!!!';
   if (!scoreSaved && maxReached > STARTING_CASH) {
     scoreSaved = true;
     submitScoreToFirebase(getPlayerName(), maxReached, gamesPlayed)
@@ -403,31 +709,45 @@ function gameOver() {
   }
 }
 
-// --- Repeat with animation ---
+// --- Repeat ---
 let running = false;
 let stopRequested = false;
 
 function getDelay() {
-  const val = parseInt(document.getElementById('speed-slider').value);
+  const slider = isMobile() ? 'm-speed-slider' : 'speed-slider';
+  const val = parseInt(document.getElementById(slider).value);
   return Math.max(1, Math.round(201 - val * 2));
 }
 
+// Speed slider sync
 document.getElementById('speed-slider').addEventListener('input', function() {
+  document.getElementById('speed-label').textContent = getDelay() + 'ms';
+  document.getElementById('m-speed-slider').value = this.value;
+  document.getElementById('m-speed-label').textContent = getDelay() + 'ms';
+});
+document.getElementById('m-speed-slider').addEventListener('input', function() {
+  document.getElementById('m-speed-label').textContent = getDelay() + 'ms';
+  document.getElementById('speed-slider').value = this.value;
   document.getElementById('speed-label').textContent = getDelay() + 'ms';
 });
 document.getElementById('speed-label').textContent = getDelay() + 'ms';
+document.getElementById('m-speed-label').textContent = getDelay() + 'ms';
 
 function setRunning(state) {
   running = state;
+  // Desktop
   document.getElementById('btn-stop').style.display = state ? 'inline-block' : 'none';
   document.getElementById('btn-bet').disabled = state;
   document.getElementById('btn-r100').disabled = state;
   document.getElementById('btn-r1000').disabled = state;
+  // Mobile
+  document.getElementById('m-stop-row').style.display = state ? 'grid' : 'none';
+  document.getElementById('m-btn-bet').disabled = state;
+  document.getElementById('m-btn-r100').disabled = state;
+  document.getElementById('m-btn-r1000').disabled = state;
 }
 
-window.stopRepeat = function() {
-  stopRequested = true;
-};
+window.stopRepeat = function() { stopRequested = true; };
 
 const CHART_UPDATE_INTERVAL = 5;
 
@@ -440,12 +760,8 @@ window.repeatBet = async function(times) {
 
   for (let i = 0; i < times; i++) {
     if (stopRequested) break;
-
     const wager = totalBetAmount(bets);
-    if (wager > balance || balance <= 0) {
-      gameOver();
-      break;
-    }
+    if (wager > balance || balance <= 0) { gameOver(); break; }
     balance -= wager;
     const result = spin();
     const winnings = resolveBets(bets, result);
@@ -453,40 +769,38 @@ window.repeatBet = async function(times) {
     gamesPlayed++;
     if (balance > maxReached) maxReached = balance;
     equityData.push(balance);
-
     showSpin(result);
     highlightBoard(result);
     updateDisplay();
-
     if (i % CHART_UPDATE_INTERVAL === 0 || i === times - 1) {
       updateChart();
       renderLeaderboard();
     }
-
-    if (balance <= 0) {
-      gameOver();
-      break;
-    }
-
+    if (balance <= 0) { gameOver(); break; }
     await new Promise(r => setTimeout(r, getDelay()));
   }
-
   updateChart();
   renderLeaderboard();
   setRunning(false);
 };
 
-window.startAgain = startAgain;
-
 // --- Display ---
 function showSpin(num) {
+  // Desktop
   const el = document.getElementById('spin-display');
   el.style.visibility = 'visible';
   el.textContent = numLabel(num);
   el.className = 'spin-number spin-' + getColor(num);
-
   const tags = getSpinProperties(num);
   document.getElementById('spin-tags').innerHTML = tags.map(t => `<span class="spin-tag">${t}</span>`).join('');
+
+  // Mobile
+  const mRow = document.getElementById('m-spin-row');
+  mRow.style.display = 'flex';
+  const mEl = document.getElementById('m-spin-display');
+  mEl.textContent = numLabel(num);
+  mEl.className = 'm-spin-num spin-' + getColor(num);
+  document.getElementById('m-spin-tags').innerHTML = tags.map(t => `<span class="m-spin-tag">${t}</span>`).join('');
 }
 
 function formatMoney(n) {
@@ -495,63 +809,61 @@ function formatMoney(n) {
   return (neg ? '-$' : '$') + s;
 }
 
-function updateDisplay() {
-  document.getElementById('stat-start').textContent = formatMoney(STARTING_CASH);
-  document.getElementById('stat-games').textContent = gamesPlayed.toLocaleString();
-
-  const pnl = balance - STARTING_CASH;
-  const pnlEl = document.getElementById('stat-pnl');
-  pnlEl.textContent = (pnl >= 0 ? '+' : '') + formatMoney(pnl);
-  pnlEl.style.color = pnl >= 0 ? '#006600' : '#cc0000';
-
-  document.getElementById('stat-max').textContent = formatMoney(maxReached);
-
-  document.getElementById('stat-balance').textContent = formatMoney(balance);
-  const box = document.getElementById('balance-box');
-  box.className = 'balance-box ' + (balance >= STARTING_CASH ? 'balance-pos' : 'balance-neg');
+function formatMoneyShort(n) {
+  const neg = n < 0;
+  const s = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return (neg ? '-$' : '$') + s;
 }
 
-// --- Chart ---
-let chart;
-function initChart() {
-  const ctx = document.getElementById('equityChart').getContext('2d');
-  chart = new Chart(ctx, {
+function updateDisplay() {
+  const pnl = balance - STARTING_CASH;
+  const pnlText = (pnl >= 0 ? '+' : '') + formatMoney(pnl);
+  const pnlColor = pnl >= 0 ? '#006600' : '#cc0000';
+  const balClass = balance >= STARTING_CASH ? 'balance-pos' : 'balance-neg';
+
+  // Desktop
+  document.getElementById('stat-start').textContent = formatMoney(STARTING_CASH);
+  document.getElementById('stat-games').textContent = gamesPlayed.toLocaleString();
+  const pnlEl = document.getElementById('stat-pnl');
+  pnlEl.textContent = pnlText;
+  pnlEl.style.color = pnlColor;
+  document.getElementById('stat-max').textContent = formatMoney(maxReached);
+  document.getElementById('stat-balance').textContent = formatMoney(balance);
+  document.getElementById('balance-box').className = 'balance-box ' + balClass;
+
+  // Mobile
+  document.getElementById('m-stat-balance').textContent = formatMoney(balance);
+  document.getElementById('m-balance-hero').className = 'mobile-balance-hero ' + balClass;
+  const mPnl = document.getElementById('m-stat-pnl');
+  mPnl.textContent = (pnl >= 0 ? '+' : '') + formatMoneyShort(pnl);
+  mPnl.style.color = pnlColor;
+  document.getElementById('m-stat-max').textContent = formatMoneyShort(maxReached);
+  document.getElementById('m-stat-max').style.color = '#006600';
+  document.getElementById('m-stat-games').textContent = gamesPlayed.toLocaleString();
+}
+
+// --- Charts ---
+let chart, mChart;
+
+function createChart(canvasId) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  return new Chart(ctx, {
     type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Balance',
-        data: [],
-        borderColor: '#006600',
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: false,
-        tension: 0
-      }]
-    },
+    data: { labels: [], datasets: [{ label: 'Balance', data: [], borderColor: '#006600', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0 }] },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false,
+      responsive: true, maintainAspectRatio: false, animation: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: {
-          display: true,
-          title: { display: true, text: 'Spin #', font: { size: 11 } },
-          ticks: { maxTicksLimit: 10, font: { size: 10 } }
-        },
-        y: {
-          display: true,
-          title: { display: true, text: 'Balance ($)', font: { size: 11 } },
-          ticks: {
-            font: { size: 10 },
-            callback: v => '$' + v.toLocaleString()
-          },
-          grid: { color: '#e0e0e0' }
-        }
+        x: { display: true, title: { display: true, text: 'Spin #', font: { size: 11 } }, ticks: { maxTicksLimit: 8, font: { size: 10 } } },
+        y: { display: true, title: { display: true, text: 'Balance ($)', font: { size: 11 } }, ticks: { font: { size: 10 }, callback: v => '$' + v.toLocaleString() }, grid: { color: '#e0e0e0' } }
       }
     }
   });
+}
+
+function initChart() {
+  chart = createChart('equityChart');
+  mChart = createChart('m-equityChart');
 }
 
 function updateChart() {
@@ -560,42 +872,32 @@ function updateChart() {
   const MAX_POINTS = 500;
   if (data.length > MAX_POINTS) {
     const step = Math.ceil(data.length / MAX_POINTS);
-    const sampled = [];
-    const sampledLabels = [];
-    for (let i = 0; i < data.length; i += step) {
-      sampled.push(data[i]);
-      sampledLabels.push(i);
-    }
-    if (sampledLabels[sampledLabels.length - 1] !== data.length - 1) {
-      sampled.push(data[data.length - 1]);
-      sampledLabels.push(data.length - 1);
-    }
+    const sampled = [], sampledLabels = [];
+    for (let i = 0; i < data.length; i += step) { sampled.push(data[i]); sampledLabels.push(i); }
+    if (sampledLabels[sampledLabels.length - 1] !== data.length - 1) { sampled.push(data[data.length - 1]); sampledLabels.push(data.length - 1); }
     data = sampled;
     labels = sampledLabels;
   } else {
     labels = data.map((_, i) => i);
   }
-
-  chart.data.labels = labels;
-  chart.data.datasets[0].data = data;
-  chart.update();
+  // Update both charts
+  [chart, mChart].forEach(c => {
+    c.data.labels = labels;
+    c.data.datasets[0].data = data;
+    c.update();
+  });
 }
 
 // --- Leaderboard ---
 function renderLeaderboard() {
-  const tbody = document.getElementById('lb-body');
-  let html = '';
-
-  // Current game row (always at top)
   const name = getPlayerName();
+  let html = '';
   html += `<tr class="current-row">`;
   html += `<td class="rank"><span class="current-badge">YOU</span></td>`;
   html += `<td>${escHtml(name)}</td>`;
   html += `<td class="max-col">${formatMoney(maxReached)}</td>`;
   html += `<td class="games-col">${gamesPlayed.toLocaleString()}</td>`;
   html += `</tr>`;
-
-  // Firebase high scores
   for (let i = 0; i < firebaseScores.length; i++) {
     const s = firebaseScores[i];
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
@@ -606,119 +908,91 @@ function renderLeaderboard() {
     html += `<td class="games-col">${(s.totalSpins || 0).toLocaleString()}</td>`;
     html += `</tr>`;
   }
-
   if (firebaseScores.length === 0) {
-    html += `<tr><td colspan="4" style="text-align:center;color:#999;padding:10px;font-size:11px;">No scores yet — be the first!</td></tr>`;
+    html += `<tr><td colspan="4" style="text-align:center;color:#999;padding:10px;font-size:11px;">No scores yet!</td></tr>`;
   }
-
-  tbody.innerHTML = html;
+  // Update both desktop and mobile
+  document.getElementById('lb-body').innerHTML = html;
+  document.getElementById('m-lb-body').innerHTML = html;
 }
 
-function escHtml(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
+function escHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
 // --- Roulette Board ---
-function buildBoard() {
-  const table = document.getElementById('roulette-board');
+function buildBoardHTML() {
   let html = '';
+  html += '<tr>';
+  html += `<td class="rb-label" style="font-size:9px">1-18</td><td class="rb-label" style="font-size:9px">1st</td>`;
+  for (let c = 1; c <= 12; c++) { const n = (c-1)*3+1; html += `<td class="rb-${getColor(n)}" data-board="${n}">${n}</td>`; }
+  html += `<td class="rb-label">Row 00</td></tr>`;
 
   html += '<tr>';
-  html += `<td class="rb-label" style="font-size:9px">1-18</td>`;
-  html += `<td class="rb-label" style="font-size:9px">1st</td>`;
-  for (let col = 1; col <= 12; col++) {
-    const num = (col - 1) * 3 + 1;
-    const c = getColor(num);
-    html += `<td class="rb-${c}" id="board-${num}">${num}</td>`;
-  }
-  html += `<td class="rb-label">Row 00</td>`;
-  html += '</tr>';
+  html += `<td class="rb-label" style="font-size:9px">Odd</td><td class="rb-label" style="font-size:9px">12</td>`;
+  for (let c = 1; c <= 12; c++) { const n = (c-1)*3+2; html += `<td class="rb-${getColor(n)}" data-board="${n}">${n}</td>`; }
+  html += `<td class="rb-label">Row</td></tr>`;
 
   html += '<tr>';
-  html += `<td class="rb-label" style="font-size:9px">Odd</td>`;
-  html += `<td class="rb-label" style="font-size:9px">12</td>`;
-  for (let col = 1; col <= 12; col++) {
-    const num = (col - 1) * 3 + 2;
-    const c = getColor(num);
-    html += `<td class="rb-${c}" id="board-${num}">${num}</td>`;
-  }
-  html += `<td class="rb-label">Row</td>`;
-  html += '</tr>';
+  html += `<td class="rb-label" style="font-size:9px">Red</td><td class="rb-label" style="font-size:9px">2nd</td>`;
+  for (let c = 1; c <= 12; c++) { const n = c*3; html += `<td class="rb-${getColor(n)}" data-board="${n}">${n}</td>`; }
+  html += `<td class="rb-label">Row</td></tr>`;
 
   html += '<tr>';
-  html += `<td class="rb-label" style="font-size:9px">Red</td>`;
-  html += `<td class="rb-label" style="font-size:9px">2nd</td>`;
-  for (let col = 1; col <= 12; col++) {
-    const num = col * 3;
-    const c = getColor(num);
-    html += `<td class="rb-${c}" id="board-${num}">${num}</td>`;
-  }
-  html += `<td class="rb-label">Row</td>`;
-  html += '</tr>';
+  html += `<td class="rb-label" style="font-size:9px">Black</td><td class="rb-green" data-board="0">0</td>`;
+  for (let c = 1; c <= 12; c++) { html += `<td class="rb-label" style="font-size:9px">${c}</td>`; }
+  html += `<td class="rb-label">Row</td></tr>`;
 
   html += '<tr>';
-  html += `<td class="rb-label" style="font-size:9px">Black</td>`;
-  html += `<td class="rb-green" id="board-0">0</td>`;
-  for (let col = 1; col <= 12; col++) {
-    html += `<td class="rb-label" style="font-size:9px">${col}</td>`;
-  }
-  html += `<td class="rb-label">Row</td>`;
-  html += '</tr>';
-
-  html += '<tr>';
-  html += `<td class="rb-label" style="font-size:9px">Even</td>`;
-  html += `<td class="rb-label" style="font-size:9px">3rd</td>`;
+  html += `<td class="rb-label" style="font-size:9px">Even</td><td class="rb-label" style="font-size:9px">3rd</td>`;
   html += `<td class="rb-label" colspan="4" style="font-size:9px">1st 12</td>`;
   html += `<td class="rb-label" colspan="4" style="font-size:9px">2nd 12</td>`;
   html += `<td class="rb-label" colspan="4" style="font-size:9px">3rd 12</td>`;
-  html += `<td class="rb-label">Row</td>`;
-  html += '</tr>';
+  html += `<td class="rb-label">Row</td></tr>`;
 
   html += '<tr>';
-  html += `<td class="rb-label" style="font-size:9px">19-36</td>`;
-  html += `<td class="rb-green" id="board-37">00</td>`;
+  html += `<td class="rb-label" style="font-size:9px">19-36</td><td class="rb-green" data-board="37">00</td>`;
   html += `<td class="rb-label" colspan="4" style="font-size:9px">Col 1</td>`;
   html += `<td class="rb-label" colspan="4" style="font-size:9px">Col 2</td>`;
   html += `<td class="rb-label" colspan="4" style="font-size:9px">Col 3</td>`;
-  html += `<td class="rb-label">Row</td>`;
-  html += '</tr>';
+  html += `<td class="rb-label">Row</td></tr>`;
 
-  table.innerHTML = html;
+  return html;
+}
+
+function buildBoard() {
+  const html = buildBoardHTML();
+  document.getElementById('roulette-board').innerHTML = html;
+  document.getElementById('m-roulette-board').innerHTML = html;
 }
 
 function highlightBoard(num) {
   document.querySelectorAll('.rb-highlight').forEach(el => el.classList.remove('rb-highlight'));
-  const el = document.getElementById('board-' + num);
-  if (el) el.classList.add('rb-highlight');
+  document.querySelectorAll(`[data-board="${num}"]`).forEach(el => el.classList.add('rb-highlight'));
 }
 
-// Populate selects
+// Populate desktop selects
 function populateSelects() {
-  const selects = ['bet-straight-num', 'bet-straight2-num'];
-  selects.forEach(id => {
+  ['bet-straight-num', 'bet-straight2-num'].forEach(id => {
     const sel = document.getElementById(id);
-    for (let i = 0; i <= 36; i++) {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = i;
-      sel.appendChild(opt);
-    }
-    const opt00 = document.createElement('option');
-    opt00.value = 37;
-    opt00.textContent = '00';
-    sel.appendChild(opt00);
+    for (let i = 0; i <= 36; i++) { const o = document.createElement('option'); o.value = i; o.textContent = i; sel.appendChild(o); }
+    const o00 = document.createElement('option'); o00.value = 37; o00.textContent = '00'; sel.appendChild(o00);
   });
-
   const rowSel = document.getElementById('bet-row-num');
-  for (let i = 1; i <= 12; i++) {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = 'Row ' + i;
-    rowSel.appendChild(opt);
-  }
+  for (let i = 1; i <= 12; i++) { const o = document.createElement('option'); o.value = i; o.textContent = 'Row ' + i; rowSel.appendChild(o); }
 }
+
+// --- Mobile Tabs ---
+document.querySelectorAll('.m-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.mobile-tab-content').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('m-tab-' + this.dataset.tab).classList.add('active');
+    // Trigger chart resize when chart tab selected
+    if (this.dataset.tab === 'chart') {
+      setTimeout(() => mChart.resize(), 50);
+    }
+  });
+});
 
 // Init
 populateSelects();
