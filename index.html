@@ -179,8 +179,51 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
   </div>
 </div>
 
-<script>
-// Roulette data
+<script type="module">
+// --- Firebase ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import {
+  getDatabase, ref, push, serverTimestamp,
+  query, orderByChild, limitToLast, onValue
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDGLUYe7kOFYU-FjNQa-6FwWKXD71zIgs4",
+  authDomain: "roulette-sim-367f8.firebaseapp.com",
+  databaseURL: "https://roulette-sim-367f8-default-rtdb.firebaseio.com",
+  projectId: "roulette-sim-367f8",
+  storageBucket: "roulette-sim-367f8.firebasestorage.app",
+  messagingSenderId: "83037843428",
+  appId: "1:83037843428:web:531ab8ced8cb7497fa61f1"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+// Live leaderboard data from Firebase
+let firebaseScores = [];
+
+// Listen for top 20 scores in real-time
+const scoresQuery = query(ref(db, 'scores'), orderByChild('score'), limitToLast(20));
+onValue(scoresQuery, (snapshot) => {
+  const results = [];
+  snapshot.forEach((child) => {
+    results.push({ id: child.key, ...child.val() });
+  });
+  firebaseScores = results.reverse(); // highest first
+  renderLeaderboard();
+});
+
+function submitScoreToFirebase(playerName, score, totalSpins) {
+  return push(ref(db, 'scores'), {
+    name: playerName,
+    score: score,
+    totalSpins: totalSpins,
+    timestamp: serverTimestamp()
+  });
+}
+
+// --- Roulette data ---
 const RED_NUMS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const BLACK_NUMS = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
 const STARTING_CASH = 1000;
@@ -190,8 +233,9 @@ function isBlack(n) { return BLACK_NUMS.includes(n); }
 function getColor(n) { if (n === 0 || n === 37) return 'green'; return isRed(n) ? 'red' : 'black'; }
 function numLabel(n) { return n === 37 ? '00' : String(n); }
 
-// State
+// --- State ---
 let balance, gamesPlayed, equityData, lastBets, maxReached;
+let scoreSaved = false;
 
 function getPlayerName() {
   const name = (document.getElementById('player-name').value || '').trim();
@@ -204,8 +248,9 @@ function init() {
   maxReached = STARTING_CASH;
   equityData = [STARTING_CASH];
   lastBets = null;
+  scoreSaved = false;
   updateDisplay();
-  updateLeaderboard();
+  renderLeaderboard();
   document.getElementById('spin-display').style.visibility = 'hidden';
   document.getElementById('spin-tags').innerHTML = '';
   document.getElementById('game-over-text').textContent = '';
@@ -314,12 +359,13 @@ function getSpinProperties(num) {
   return tags;
 }
 
-function placeBet() {
+// --- Betting ---
+window.placeBet = function() {
   const bets = collectBets();
   if (bets.length === 0) return;
   lastBets = bets;
   executeBets(bets);
-}
+};
 
 function executeBets(bets) {
   const wager = totalBetAmount(bets);
@@ -340,7 +386,7 @@ function executeBets(bets) {
   updateDisplay();
   updateChart();
   highlightBoard(result);
-  updateLeaderboard();
+  renderLeaderboard();
 
   if (balance <= 0) {
     gameOver();
@@ -349,9 +395,12 @@ function executeBets(bets) {
 
 function gameOver() {
   document.getElementById('game-over-text').textContent = ' Game Over!!!';
-  // Save score to leaderboard
-  saveScore();
-  updateLeaderboard();
+  if (!scoreSaved && maxReached > STARTING_CASH) {
+    scoreSaved = true;
+    submitScoreToFirebase(getPlayerName(), maxReached, gamesPlayed)
+      .then(() => console.log('Score saved to Firebase'))
+      .catch(err => console.error('Firebase write failed:', err));
+  }
 }
 
 // --- Repeat with animation ---
@@ -376,13 +425,13 @@ function setRunning(state) {
   document.getElementById('btn-r1000').disabled = state;
 }
 
-function stopRepeat() {
+window.stopRepeat = function() {
   stopRequested = true;
-}
+};
 
 const CHART_UPDATE_INTERVAL = 5;
 
-async function repeatBet(times) {
+window.repeatBet = async function(times) {
   const bets = lastBets || collectBets();
   if (bets.length === 0) return;
   lastBets = bets;
@@ -408,10 +457,10 @@ async function repeatBet(times) {
     showSpin(result);
     highlightBoard(result);
     updateDisplay();
-    updateLeaderboard();
 
     if (i % CHART_UPDATE_INTERVAL === 0 || i === times - 1) {
       updateChart();
+      renderLeaderboard();
     }
 
     if (balance <= 0) {
@@ -423,8 +472,11 @@ async function repeatBet(times) {
   }
 
   updateChart();
+  renderLeaderboard();
   setRunning(false);
-}
+};
+
+window.startAgain = startAgain;
 
 // --- Display ---
 function showSpin(num) {
@@ -530,32 +582,7 @@ function updateChart() {
 }
 
 // --- Leaderboard ---
-function getHighScores() {
-  try {
-    return JSON.parse(localStorage.getItem('roulette-highscores') || '[]');
-  } catch { return []; }
-}
-
-function saveHighScores(scores) {
-  localStorage.setItem('roulette-highscores', JSON.stringify(scores));
-}
-
-function saveScore() {
-  if (maxReached <= STARTING_CASH) return; // Don't save if never went above start
-  const scores = getHighScores();
-  scores.push({
-    name: getPlayerName(),
-    maxBalance: maxReached,
-    games: gamesPlayed,
-    date: Date.now()
-  });
-  // Sort by max balance descending, keep top 20
-  scores.sort((a, b) => b.maxBalance - a.maxBalance);
-  saveHighScores(scores.slice(0, 20));
-}
-
-function updateLeaderboard() {
-  const scores = getHighScores();
+function renderLeaderboard() {
   const tbody = document.getElementById('lb-body');
   let html = '';
 
@@ -568,16 +595,20 @@ function updateLeaderboard() {
   html += `<td class="games-col">${gamesPlayed.toLocaleString()}</td>`;
   html += `</tr>`;
 
-  // Saved high scores
-  for (let i = 0; i < scores.length; i++) {
-    const s = scores[i];
+  // Firebase high scores
+  for (let i = 0; i < firebaseScores.length; i++) {
+    const s = firebaseScores[i];
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
     html += `<tr>`;
     html += `<td class="rank ${rankClass}">${i + 1}</td>`;
     html += `<td>${escHtml(s.name)}</td>`;
-    html += `<td class="max-col">${formatMoney(s.maxBalance)}</td>`;
-    html += `<td class="games-col">${s.games.toLocaleString()}</td>`;
+    html += `<td class="max-col">${formatMoney(s.score)}</td>`;
+    html += `<td class="games-col">${(s.totalSpins || 0).toLocaleString()}</td>`;
     html += `</tr>`;
+  }
+
+  if (firebaseScores.length === 0) {
+    html += `<tr><td colspan="4" style="text-align:center;color:#999;padding:10px;font-size:11px;">No scores yet — be the first!</td></tr>`;
   }
 
   tbody.innerHTML = html;
@@ -594,7 +625,6 @@ function buildBoard() {
   const table = document.getElementById('roulette-board');
   let html = '';
 
-  // Row 1: numbers 1,4,7,10,...,34
   html += '<tr>';
   html += `<td class="rb-label" style="font-size:9px">1-18</td>`;
   html += `<td class="rb-label" style="font-size:9px">1st</td>`;
@@ -606,7 +636,6 @@ function buildBoard() {
   html += `<td class="rb-label">Row 00</td>`;
   html += '</tr>';
 
-  // Row 2: numbers 2,5,8,11,...,35
   html += '<tr>';
   html += `<td class="rb-label" style="font-size:9px">Odd</td>`;
   html += `<td class="rb-label" style="font-size:9px">12</td>`;
@@ -618,7 +647,6 @@ function buildBoard() {
   html += `<td class="rb-label">Row</td>`;
   html += '</tr>';
 
-  // Row 3: numbers 3,6,9,...,36
   html += '<tr>';
   html += `<td class="rb-label" style="font-size:9px">Red</td>`;
   html += `<td class="rb-label" style="font-size:9px">2nd</td>`;
@@ -630,7 +658,6 @@ function buildBoard() {
   html += `<td class="rb-label">Row</td>`;
   html += '</tr>';
 
-  // Labels row with 0
   html += '<tr>';
   html += `<td class="rb-label" style="font-size:9px">Black</td>`;
   html += `<td class="rb-green" id="board-0">0</td>`;
@@ -640,7 +667,6 @@ function buildBoard() {
   html += `<td class="rb-label">Row</td>`;
   html += '</tr>';
 
-  // Sections row
   html += '<tr>';
   html += `<td class="rb-label" style="font-size:9px">Even</td>`;
   html += `<td class="rb-label" style="font-size:9px">3rd</td>`;
@@ -650,7 +676,6 @@ function buildBoard() {
   html += `<td class="rb-label">Row</td>`;
   html += '</tr>';
 
-  // 00 row
   html += '<tr>';
   html += `<td class="rb-label" style="font-size:9px">19-36</td>`;
   html += `<td class="rb-green" id="board-37">00</td>`;
