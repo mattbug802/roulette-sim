@@ -554,7 +554,28 @@ function init() {
 }
 
 window.startAgain = function() {
-  // NOTE: bets are intentionally NOT cleared so the player can replay the same strategy
+  // Rescale input fields back to starting cash proportions before resetting
+  if (lastBets && lastBetBalance && lastBetBalance !== STARTING_CASH) {
+    const scale = STARTING_CASH / lastBetBalance;
+    const typeToId = {
+      red: 'bet-red', black: 'bet-black', odd: 'bet-odd', even: 'bet-even',
+      '1to18': 'bet-1to18', '19to36': 'bet-19to36',
+      '1st12': 'bet-1st12', '2nd12': 'bet-2nd12', '3rd12': 'bet-3rd12',
+      col1: 'bet-col1', col2: 'bet-col2', col3: 'bet-col3'
+    };
+    for (const bet of lastBets) {
+      const scaled = Math.max(1, Math.round(bet.amount * scale));
+      if (bet.type === 'straight' || bet.type === 'row') continue; // leave as-is
+      const id = typeToId[bet.type];
+      if (id) {
+        // Update both desktop and mobile inputs
+        const dEl = document.getElementById(id);
+        const mEl = document.getElementById('m-' + id);
+        if (dEl) dEl.value = scaled;
+        if (mEl) mEl.value = scaled;
+      }
+    }
+  }
   init();
 };
 
@@ -766,9 +787,16 @@ window.repeatBet = async function(times) {
 
 // Scale bet: updates input fields proportionally to current balance, then places bet
 window.scaleBet = function() {
-  const baseBets = lastBets || collectBets();
-  if (baseBets.length === 0 || !lastBetBalance) return;
-  const scale = balance / lastBetBalance;
+  // Use lastBets if available, otherwise read current inputs
+  let baseBets = lastBets;
+  let baseBalance = lastBetBalance;
+  if (!baseBets || baseBets.length === 0) {
+    baseBets = collectBets();
+    baseBalance = balance; // first press — current inputs are the baseline
+  }
+  if (!baseBalance) baseBalance = STARTING_CASH;
+  if (baseBets.length === 0 || balance <= 0) return;
+  const scale = balance / baseBalance;
   if (scale <= 0) return;
 
   // Map bet type to input field IDs
