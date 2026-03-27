@@ -294,7 +294,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       <button class="m-btn m-btn-reset" onclick="startAgain()">RESET</button>
       <button class="m-btn m-btn-repeat" id="m-btn-r100" onclick="repeatBet(100)">100x</button>
       <button class="m-btn m-btn-repeat" id="m-btn-r1000" onclick="repeatBet(1000)">1000x</button>
-      <button class="m-btn m-btn-repeat" id="m-btn-rscaled" onclick="repeatBetScaled(100)" style="background:#006600;border-color:#006600;font-size:8px;">Scale 100x</button>
+      <button class="m-btn m-btn-repeat" id="m-btn-rscaled" onclick="scaleBet()" style="background:#006600;border-color:#006600;font-size:8px;">Scale</button>
     </div>
     <div class="m-action-row" id="m-stop-row" style="display:none;">
       <button class="m-btn m-btn-stop" onclick="stopRepeat()" style="grid-column:1/-1;">STOP</button>
@@ -364,7 +364,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       <button class="btn btn-repeat" id="btn-r1000" onclick="repeatBet(1000)">Repeat Last Bet 1000x</button>
     </div>
     <div class="buttons">
-      <button class="btn btn-repeat" id="btn-rscaled" onclick="repeatBetScaled(100)" style="background:#006600;border-color:#006600;">Scale Bet 100x</button>
+      <button class="btn btn-repeat" id="btn-rscaled" onclick="scaleBet()" style="background:#006600;border-color:#006600;">Scale &amp; Bet</button>
     </div>
     <div style="margin-top:6px;font-size:12px;">
       <label><b>Speed:</b></label>
@@ -764,38 +764,67 @@ window.repeatBet = async function(times) {
   setRunning(false);
 };
 
-window.repeatBetScaled = async function(times) {
+// Scale bet: updates input fields proportionally to current balance, then places bet
+window.scaleBet = function() {
   const baseBets = lastBets || collectBets();
-  if (baseBets.length === 0) return;
-  if (!lastBetBalance) lastBetBalance = balance;
-  lastBets = baseBets;
-  stopRequested = false;
-  setRunning(true);
+  if (baseBets.length === 0 || !lastBetBalance) return;
+  const scale = balance / lastBetBalance;
+  if (scale <= 0) return;
 
-  for (let i = 0; i < times; i++) {
-    if (stopRequested) break;
-    // Scale each bet proportionally to current balance vs original balance
-    const scale = balance / lastBetBalance;
-    const bets = baseBets.map(b => ({ ...b, amount: Math.max(1, Math.round(b.amount * scale)) }));
-    const wager = totalBetAmount(bets);
-    if (wager > balance || balance <= 0) { gameOver(); break; }
-    balance -= wager;
-    const result = spin();
-    const winnings = resolveBets(bets, result);
-    balance += winnings;
-    gamesPlayed++;
-    if (balance > maxReached) maxReached = balance;
-    equityData.push(balance);
-    showSpin(result);
-    highlightBoard(result);
-    updateDisplay();
-    if (i % CHART_UPDATE_INTERVAL === 0 || i === times - 1) { updateChart(); renderLeaderboard(); }
-    if (balance <= 0) { gameOver(); break; }
-    await new Promise(r => setTimeout(r, getDelay()));
+  // Map bet type to input field IDs
+  const typeToId = {
+    red: 'bet-red', black: 'bet-black', odd: 'bet-odd', even: 'bet-even',
+    '1to18': 'bet-1to18', '19to36': 'bet-19to36',
+    '1st12': 'bet-1st12', '2nd12': 'bet-2nd12', '3rd12': 'bet-3rd12',
+    col1: 'bet-col1', col2: 'bet-col2', col3: 'bet-col3'
+  };
+
+  const prefix = isMobile() ? 'm-' : '';
+
+  // Clear existing inputs first
+  for (const id of Object.values(typeToId)) {
+    const el = document.getElementById(prefix + id);
+    if (el) el.value = '';
   }
-  updateChart();
-  renderLeaderboard();
-  setRunning(false);
+
+  // Write scaled values back into inputs
+  for (const bet of baseBets) {
+    const scaled = Math.max(1, Math.round(bet.amount * scale));
+    if (bet.type === 'straight') {
+      if (isMobile()) {
+        // Select the number in the grid and set amount
+        selectedNums.add(bet.number);
+        document.getElementById('m-num-bet-amt').value = scaled;
+        updateNumGridUI();
+      } else {
+        if (bet.number === 0) { document.getElementById('bet-0').value = scaled; }
+        else if (bet.number === 37) { document.getElementById('bet-00').value = scaled; }
+        else {
+          // Use first available straight slot
+          const s1 = document.getElementById('bet-straight-num');
+          const s1a = document.getElementById('bet-straight');
+          if (!s1a.value) { s1.value = bet.number; s1a.value = scaled; }
+          else { document.getElementById('bet-straight2-num').value = bet.number; document.getElementById('bet-straight2').value = scaled; }
+        }
+      }
+    } else if (bet.type === 'row') {
+      const rowSel = document.getElementById(prefix + 'bet-row-num');
+      const rowAmt = document.getElementById(prefix + 'bet-row');
+      if (rowSel) rowSel.value = bet.row;
+      if (rowAmt) rowAmt.value = scaled;
+    } else {
+      const id = typeToId[bet.type];
+      if (id) {
+        const el = document.getElementById(prefix + id);
+        if (el) el.value = scaled;
+      }
+    }
+  }
+
+  // Now record this as the new baseline and place the bet
+  lastBetBalance = balance;
+  lastBets = collectBets();
+  if (lastBets.length > 0) executeBets(lastBets);
 };
 
 // --- Display ---
