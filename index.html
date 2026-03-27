@@ -289,11 +289,12 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       <input type="number" id="m-bet-row" min="0" placeholder="$">
     </div>
 
-    <div class="m-action-row">
+    <div class="m-action-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
       <button class="m-btn m-btn-bet" id="m-btn-bet" onclick="placeBet()">BET</button>
       <button class="m-btn m-btn-reset" onclick="startAgain()">RESET</button>
       <button class="m-btn m-btn-repeat" id="m-btn-r100" onclick="repeatBet(100)">100x</button>
       <button class="m-btn m-btn-repeat" id="m-btn-r1000" onclick="repeatBet(1000)">1000x</button>
+      <button class="m-btn m-btn-repeat" id="m-btn-rscaled" onclick="repeatBetScaled(100)" style="background:#006600;border-color:#006600;font-size:8px;">Scale 100x</button>
     </div>
     <div class="m-action-row" id="m-stop-row" style="display:none;">
       <button class="m-btn m-btn-stop" onclick="stopRepeat()" style="grid-column:1/-1;">STOP</button>
@@ -361,6 +362,9 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
     <div class="buttons">
       <button class="btn btn-repeat" id="btn-r100" onclick="repeatBet(100)">Repeat Last Bet 100x</button>
       <button class="btn btn-repeat" id="btn-r1000" onclick="repeatBet(1000)">Repeat Last Bet 1000x</button>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-repeat" id="btn-rscaled" onclick="repeatBetScaled(100)" style="background:#006600;border-color:#006600;">Scale Bet 100x</button>
     </div>
     <div style="margin-top:6px;font-size:12px;">
       <label><b>Speed:</b></label>
@@ -445,7 +449,7 @@ function getColor(n) { if (n === 0 || n === 37) return 'green'; return isRed(n) 
 function numLabel(n) { return n === 37 ? '00' : String(n); }
 
 // --- State ---
-let balance, gamesPlayed, equityData, lastBets, maxReached;
+let balance, gamesPlayed, equityData, lastBets, lastBetBalance, maxReached;
 let scoreSaved = false;
 
 // --- Mobile number picker state ---
@@ -537,6 +541,7 @@ function init() {
   maxReached = STARTING_CASH;
   equityData = [STARTING_CASH];
   lastBets = null;
+  lastBetBalance = null;
   scoreSaved = false;
   updateDisplay();
   renderLeaderboard();
@@ -655,6 +660,7 @@ window.placeBet = function() {
   const bets = collectBets();
   if (bets.length === 0) return;
   lastBets = bets;
+  lastBetBalance = balance;
   executeBets(bets);
 };
 
@@ -716,10 +722,12 @@ function setRunning(state) {
   document.getElementById('btn-bet').disabled = state;
   document.getElementById('btn-r100').disabled = state;
   document.getElementById('btn-r1000').disabled = state;
+  document.getElementById('btn-rscaled').disabled = state;
   document.getElementById('m-stop-row').style.display = state ? 'grid' : 'none';
   document.getElementById('m-btn-bet').disabled = state;
   document.getElementById('m-btn-r100').disabled = state;
   document.getElementById('m-btn-r1000').disabled = state;
+  document.getElementById('m-btn-rscaled').disabled = state;
 }
 
 window.stopRepeat = function() { stopRequested = true; };
@@ -735,6 +743,40 @@ window.repeatBet = async function(times) {
 
   for (let i = 0; i < times; i++) {
     if (stopRequested) break;
+    const wager = totalBetAmount(bets);
+    if (wager > balance || balance <= 0) { gameOver(); break; }
+    balance -= wager;
+    const result = spin();
+    const winnings = resolveBets(bets, result);
+    balance += winnings;
+    gamesPlayed++;
+    if (balance > maxReached) maxReached = balance;
+    equityData.push(balance);
+    showSpin(result);
+    highlightBoard(result);
+    updateDisplay();
+    if (i % CHART_UPDATE_INTERVAL === 0 || i === times - 1) { updateChart(); renderLeaderboard(); }
+    if (balance <= 0) { gameOver(); break; }
+    await new Promise(r => setTimeout(r, getDelay()));
+  }
+  updateChart();
+  renderLeaderboard();
+  setRunning(false);
+};
+
+window.repeatBetScaled = async function(times) {
+  const baseBets = lastBets || collectBets();
+  if (baseBets.length === 0) return;
+  if (!lastBetBalance) lastBetBalance = balance;
+  lastBets = baseBets;
+  stopRequested = false;
+  setRunning(true);
+
+  for (let i = 0; i < times; i++) {
+    if (stopRequested) break;
+    // Scale each bet proportionally to current balance vs original balance
+    const scale = balance / lastBetBalance;
+    const bets = baseBets.map(b => ({ ...b, amount: Math.max(1, Math.round(b.amount * scale)) }));
     const wager = totalBetAmount(bets);
     if (wager > balance || balance <= 0) { gameOver(); break; }
     balance -= wager;
