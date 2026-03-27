@@ -88,75 +88,79 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
 
 /* ===== MOBILE LAYOUT ===== */
 @media (max-width: 768px) {
-  body { padding: 6px; }
+  body { padding: 4px; }
   .app { display: none; }
   .mobile-only { display: block; }
 
-  .mobile-name-banner {
-    display: flex; align-items: center; gap: 8px;
-    background: #006600; padding: 8px 10px; border-radius: 4px; margin-bottom: 8px;
+  /* Top bar: name + balance combined */
+  .m-top-bar {
+    display: flex; align-items: center; gap: 6px;
+    background: #006600; padding: 5px 8px; border-radius: 4px; margin-bottom: 4px;
   }
-  .mobile-name-banner .name-icon { font-size: 20px; }
-  .mobile-name-banner input {
-    flex: 1; font-size: 14px; padding: 6px 10px;
-    border: none; border-radius: 3px; background: rgba(255,255,255,0.95);
+  .m-top-bar .name-icon { font-size: 16px; }
+  .m-top-bar input {
+    width: 120px; font-size: 12px; padding: 4px 6px;
+    border: none; border-radius: 3px; background: rgba(255,255,255,0.9);
     font-weight: bold; color: #333;
   }
-  .mobile-name-banner input::placeholder { color: #999; font-weight: normal; }
+  .m-top-bar input::placeholder { color: #999; font-weight: normal; }
+  .m-top-bar .bal-wrap { flex: 1; text-align: right; }
+  .m-top-bar .bal-label-sm { font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.7); }
+  .m-top-bar .bal-amount { font-size: 18px; font-weight: bold; color: #fff; }
+  .m-top-bar .bal-gameover { color: #FFD700; font-size: 10px; font-weight: bold; }
 
-  .mobile-balance-hero {
-    display: block; text-align: center; padding: 10px 8px; font-weight: bold;
-    margin-bottom: 8px; border-radius: 4px; border: 3px solid;
+  /* Compact stats row */
+  .mobile-stats-strip {
+    display: flex; gap: 3px; margin-bottom: 4px;
   }
-  .mobile-balance-hero .bal-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-  .mobile-balance-hero .bal-amount { font-size: 28px; }
-  .mobile-balance-hero .bal-gameover { color: #cc0000; font-size: 14px; animation: pulse 1s infinite; }
+  .m-stat-box { flex: 1; background: #fff; border: 1px solid #ddd; padding: 3px 4px; text-align: center; border-radius: 3px; }
+  .m-stat-box .m-stat-label { font-size: 8px; color: #888; text-transform: uppercase; }
+  .m-stat-box .m-stat-value { font-size: 12px; font-weight: bold; }
 
-  .mobile-stats-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px; }
-  .m-stat-box { background: #fff; border: 1px solid #ccc; padding: 6px 4px; text-align: center; border-radius: 3px; }
-  .m-stat-box .m-stat-label { font-size: 9px; color: #666; text-transform: uppercase; }
-  .m-stat-box .m-stat-value { font-size: 14px; font-weight: bold; }
-
+  /* Compact spin row */
   .mobile-spin-row {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-    background: #fff; border: 1px solid #ccc; padding: 6px 8px; border-radius: 3px;
+    display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+    background: #fff; border: 1px solid #ddd; padding: 3px 6px; border-radius: 3px;
   }
   .m-spin-num {
-    width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
-    font-size: 28px; font-weight: bold; border: 2px solid #333; border-radius: 4px;
+    width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: bold; border: 2px solid #333; border-radius: 3px;
     color: #fff; flex-shrink: 0;
   }
-  .m-spin-tags { display: flex; flex-wrap: wrap; gap: 3px; }
-  .m-spin-tag { background: #eee; border: 1px solid #bbb; padding: 2px 6px; font-size: 10px; border-radius: 2px; }
+  .m-spin-tags { display: flex; flex-wrap: wrap; gap: 2px; }
+  .m-spin-tag { background: #eee; border: 1px solid #ccc; padding: 1px 4px; font-size: 9px; border-radius: 2px; }
 
-  .mobile-tab-bar { display: flex; background: #006600; border-radius: 4px 4px 0 0; overflow: hidden; }
+  /* Tabs */
+  .mobile-tab-bar { display: flex; background: #006600; border-radius: 3px 3px 0 0; }
   .m-tab {
-    flex: 1; padding: 10px 4px; text-align: center; font-size: 11px; font-weight: bold;
-    color: rgba(255,255,255,0.6); cursor: pointer; border: none; background: none;
+    flex: 1; padding: 7px 2px; text-align: center; font-size: 10px; font-weight: bold;
+    color: rgba(255,255,255,0.5); cursor: pointer; border: none; background: none;
     -webkit-tap-highlight-color: transparent;
   }
   .m-tab.active { color: #fff; background: rgba(255,255,255,0.15); border-bottom: 2px solid #fff; }
 
-  .mobile-tab-content { display: none; background: #fff; border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px; padding: 10px; }
+  .mobile-tab-content { display: none; background: #fff; border: 1px solid #ccc; border-top: none; border-radius: 0 0 3px 3px; padding: 6px; }
   .mobile-tab-content.active { display: block; }
 
+  /* Section labels */
   .m-section-label {
-    font-size: 10px; font-weight: bold; color: #666; text-transform: uppercase;
-    letter-spacing: 1px; margin: 10px 0 4px 0; padding-bottom: 2px; border-bottom: 1px solid #ddd;
+    font-size: 8px; font-weight: bold; color: #888; text-transform: uppercase;
+    letter-spacing: 0.5px; margin: 4px 0 2px 0; padding-top: 2px;
   }
   .m-section-label:first-child { margin-top: 0; }
 
-  .m-bet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .m-bet-item { display: flex; align-items: center; gap: 4px; }
-  .m-bet-item label { font-size: 12px; font-weight: bold; min-width: 48px; }
-  .m-bet-item input, .m-bet-item select { width: 60px; font-size: 12px; padding: 4px; border: 1px solid #ccc; text-align: right; border-radius: 3px; }
-  .m-bet-divider { grid-column: 1 / -1; border-top: 1px solid #ddd; margin: 2px 0; }
+  /* 3-column bet grid */
+  .m-bet-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+  .m-bet-item { display: flex; align-items: center; gap: 2px; }
+  .m-bet-item label { font-size: 10px; font-weight: bold; min-width: 32px; }
+  .m-bet-item input { width: 46px; font-size: 11px; padding: 3px; border: 1px solid #ccc; text-align: right; border-radius: 2px; }
+  .m-bet-divider { grid-column: 1 / -1; border-top: 1px solid #eee; margin: 1px 0; }
 
-  /* Number picker grid */
-  .num-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+  /* 13-column number grid */
+  .num-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 1px; }
   .num-btn {
-    width: 100%; aspect-ratio: 1; border: 1px solid #999; border-radius: 3px;
-    font-size: 11px; font-weight: bold; color: #fff; cursor: pointer;
+    width: 100%; aspect-ratio: 1; border: 1px solid rgba(255,255,255,0.3); border-radius: 2px;
+    font-size: 8px; font-weight: bold; color: #fff; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     position: relative; -webkit-tap-highlight-color: transparent; padding: 0;
     background: none;
@@ -164,38 +168,40 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
   .num-btn.red { background: #cc0000; }
   .num-btn.black { background: #333; }
   .num-btn.green { background: #006600; }
-  .num-btn.selected { outline: 2px solid #FFD700; outline-offset: -1px; box-shadow: 0 0 4px rgba(255,215,0,0.6); }
+  .num-btn.selected { outline: 2px solid #FFD700; outline-offset: -1px; box-shadow: 0 0 3px rgba(255,215,0,0.6); }
   .num-btn .chip {
     position: absolute; top: -3px; right: -3px;
-    background: #FFD700; color: #000; font-size: 7px; font-weight: bold;
-    width: 14px; height: 14px; border-radius: 50%;
+    background: #FFD700; color: #000; font-size: 6px; font-weight: bold;
+    width: 12px; height: 12px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; border: 1px solid #B8860B;
   }
   .num-bet-input-row {
-    display: flex; align-items: center; gap: 8px; margin-top: 6px;
-    padding: 6px 8px; background: #f5f5f5; border-radius: 3px; border: 1px solid #ddd;
+    display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: 9px;
   }
-  .num-bet-input-row .selected-nums { flex: 1; font-size: 11px; color: #333; font-weight: bold; }
-  .num-bet-input-row input { width: 70px; font-size: 13px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; text-align: right; }
-  .num-bet-input-row .clear-btn { background: none; border: none; color: #cc0000; font-size: 18px; cursor: pointer; font-weight: bold; padding: 0 4px; }
+  .num-bet-input-row .selected-nums { flex: 1; color: #666; font-weight: bold; }
+  .num-bet-input-row input { width: 55px; font-size: 11px; padding: 3px; border: 1px solid #ccc; border-radius: 2px; text-align: right; }
+  .num-bet-input-row .clear-btn { background: none; border: none; color: #cc0000; font-size: 14px; cursor: pointer; font-weight: bold; padding: 0 2px; }
 
-  .m-row-bet-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-  .m-row-bet-row select { flex: 1; font-size: 12px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; }
-  .m-row-bet-row input { width: 70px; font-size: 12px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; text-align: right; }
+  /* Row bet inline */
+  .m-row-bet-row { display: flex; align-items: center; gap: 4px; margin-top: 3px; }
+  .m-row-bet-row label { font-size: 9px; font-weight: bold; }
+  .m-row-bet-row select { flex: 1; font-size: 10px; padding: 3px; border: 1px solid #ccc; border-radius: 2px; }
+  .m-row-bet-row input { width: 55px; font-size: 11px; padding: 3px; border: 1px solid #ccc; border-radius: 2px; text-align: right; }
 
-  .m-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+  /* 4 buttons in one row */
+  .m-action-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 3px; margin-top: 6px; }
   .m-btn {
-    padding: 10px 8px; font-size: 13px; font-weight: bold; cursor: pointer;
-    border: 2px solid; border-radius: 4px; text-align: center;
+    padding: 7px 2px; font-size: 10px; font-weight: bold; cursor: pointer;
+    border: 2px solid; border-radius: 3px; text-align: center;
     -webkit-tap-highlight-color: transparent;
   }
   .m-btn-bet { background: #006600; color: #fff; border-color: #006600; }
   .m-btn-reset { background: #fff; color: #cc0000; border-color: #cc0000; }
-  .m-btn-repeat { background: #cc0000; color: #fff; border-color: #cc0000; font-size: 11px; }
+  .m-btn-repeat { background: #cc0000; color: #fff; border-color: #cc0000; font-size: 9px; }
   .m-btn-stop { background: #ff8800; color: #fff; border-color: #ff8800; }
   .m-btn:disabled { opacity: 0.5; }
-  .m-speed-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; }
-  .m-speed-row input[type=range] { flex: 1; }
+  .m-speed-row { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 9px; }
+  .m-speed-row input[type=range] { flex: 1; height: 16px; }
 
   .m-chart-container { width: 100%; height: 200px; }
   .m-board-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -209,6 +215,10 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
   .m-lb-table .rank { text-align: center; width: 28px; }
   .m-lb-table .max-col { text-align: right; font-weight: bold; color: #006600; }
   .m-lb-table .games-col { text-align: right; color: #666; }
+
+  /* Hide old separate elements */
+  .mobile-name-banner { display: none !important; }
+  .mobile-balance-hero { display: none !important; }
 }
 </style>
 </head>
@@ -216,17 +226,18 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
 
 <!-- ===== MOBILE LAYOUT ===== -->
 <div class="mobile-only">
-  <div class="mobile-name-banner">
+  <!-- Compact top bar: name + balance -->
+  <div class="m-top-bar">
     <span class="name-icon">&#x1F3B0;</span>
-    <input id="m-player-name" placeholder="Enter your name..." maxlength="20">
+    <input id="m-player-name" placeholder="Your name..." maxlength="20">
+    <div class="bal-wrap">
+      <div class="bal-label-sm">Balance</div>
+      <div class="bal-amount" id="m-stat-balance">$1,000.00</div>
+      <div class="bal-gameover" id="m-game-over-text"></div>
+    </div>
   </div>
 
-  <div class="mobile-balance-hero balance-pos" id="m-balance-hero">
-    <div class="bal-label">Current Balance</div>
-    <div class="bal-amount" id="m-stat-balance">$1,000.00</div>
-    <div class="bal-gameover" id="m-game-over-text"></div>
-  </div>
-
+  <!-- Compact stats -->
   <div class="mobile-stats-strip">
     <div class="m-stat-box"><div class="m-stat-label">P&L</div><div class="m-stat-value" id="m-stat-pnl" style="color:#006600">+$0</div></div>
     <div class="m-stat-box"><div class="m-stat-label">Max</div><div class="m-stat-value" id="m-stat-max" style="color:#006600">$1,000</div></div>
@@ -264,7 +275,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       <div class="m-bet-item"><label>Col 3</label><input type="number" id="m-bet-col3" min="0" placeholder="$"></div>
     </div>
 
-    <div class="m-section-label">Straight Bets (tap numbers, enter $)</div>
+    <div class="m-section-label">Straight Bets</div>
     <div id="m-num-grid" class="num-grid"></div>
     <div class="num-bet-input-row">
       <span class="selected-nums" id="m-selected-nums">None selected</span>
@@ -272,8 +283,8 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       <button class="clear-btn" id="m-num-clear">&times;</button>
     </div>
 
-    <div class="m-section-label">Row Bet</div>
     <div class="m-row-bet-row">
+      <label>Row:</label>
       <select id="m-bet-row-num"><option value="">-- Row --</option></select>
       <input type="number" id="m-bet-row" min="0" placeholder="$">
     </div>
@@ -281,10 +292,8 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
     <div class="m-action-row">
       <button class="m-btn m-btn-bet" id="m-btn-bet" onclick="placeBet()">BET</button>
       <button class="m-btn m-btn-reset" onclick="startAgain()">RESET</button>
-    </div>
-    <div class="m-action-row">
-      <button class="m-btn m-btn-repeat" id="m-btn-r100" onclick="repeatBet(100)">Repeat 100x</button>
-      <button class="m-btn m-btn-repeat" id="m-btn-r1000" onclick="repeatBet(1000)">Repeat 1000x</button>
+      <button class="m-btn m-btn-repeat" id="m-btn-r100" onclick="repeatBet(100)">100x</button>
+      <button class="m-btn m-btn-repeat" id="m-btn-r1000" onclick="repeatBet(1000)">1000x</button>
     </div>
     <div class="m-action-row" id="m-stop-row" style="display:none;">
       <button class="m-btn m-btn-stop" onclick="stopRepeat()" style="grid-column:1/-1;">STOP</button>
@@ -790,7 +799,7 @@ function updateDisplay() {
   document.getElementById('balance-box').className = 'balance-box ' + balClass;
 
   document.getElementById('m-stat-balance').textContent = formatMoney(balance);
-  document.getElementById('m-balance-hero').className = 'mobile-balance-hero ' + balClass;
+  // Top bar balance color is always white on green, no class change needed
   const mPnl = document.getElementById('m-stat-pnl');
   mPnl.textContent = (pnl >= 0 ? '+' : '') + formatMoneyShort(pnl);
   mPnl.style.color = pnlColor;
