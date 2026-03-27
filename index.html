@@ -289,9 +289,10 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
       <input type="number" id="m-bet-row" min="0" placeholder="$">
     </div>
 
-    <div class="m-action-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+    <div class="m-action-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;">
       <button class="m-btn m-btn-bet" id="m-btn-bet" onclick="placeBet()">BET</button>
       <button class="m-btn m-btn-reset" onclick="startAgain()">RESET</button>
+      <button class="m-btn m-btn-reset" onclick="clearAllBets()" style="color:#ff8800;border-color:#ff8800;font-size:8px;">CLEAR</button>
       <button class="m-btn m-btn-repeat" id="m-btn-r100" onclick="repeatBet(100)">100x</button>
       <button class="m-btn m-btn-repeat" id="m-btn-r1000" onclick="repeatBet(1000)">1000x</button>
       <button class="m-btn m-btn-repeat" id="m-btn-rscaled" onclick="scaleBet()" style="background:#006600;border-color:#006600;font-size:8px;">Scale</button>
@@ -357,6 +358,7 @@ body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 10px; }
     <div class="buttons">
       <button class="btn btn-bet" id="btn-bet" onclick="placeBet()">Bet</button>
       <button class="btn btn-reset" onclick="startAgain()">Start Again</button>
+      <button class="btn btn-reset" onclick="clearAllBets()" style="color:#ff8800;border-color:#ff8800;">Clear Bets</button>
       <button class="btn btn-stop" id="btn-stop" onclick="stopRepeat()" style="display:none;">Stop</button>
     </div>
     <div class="buttons">
@@ -552,6 +554,19 @@ function init() {
   document.getElementById('m-spin-row').style.display = 'none';
   updateChart();
 }
+
+window.clearAllBets = function() {
+  // Clear all bet inputs on both desktop and mobile
+  document.querySelectorAll('.bet-panel input[type=number]').forEach(i => i.value = '');
+  document.querySelectorAll('.bet-panel select').forEach(s => s.value = '');
+  document.querySelectorAll('#m-tab-bets input[type=number]').forEach(i => i.value = '');
+  document.querySelectorAll('#m-tab-bets select').forEach(s => s.value = '');
+  // Clear mobile number picker
+  selectedNums.clear();
+  updateNumGridUI();
+  lastBets = null;
+  lastBetBalance = null;
+};
 
 window.startAgain = function() {
   // Rescale input fields back to starting cash proportions before resetting
